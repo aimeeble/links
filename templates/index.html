@@ -1,0 +1,25 @@
+<html>
+   <head>
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+      <script src="{{ url_for('static', filename='links.js') }}"></script>
+   </head>
+
+   <body>
+      <p>Hello</p>
+
+      <form method="POST">
+         <label for="full_url_input">Full URL:</label>
+         <input name="full_url" id="full_url_input" type="text" size="50" />
+
+         <input id="shorten_button" type="submit" value="Shorten" />
+      </form>
+      <div id="short_url">{{ short_url }}</div>
+
+
+      <br>
+      <br>
+      <br>
+      <br>
+      <a href="/1">Test</a>
+   </body>
+</html>
