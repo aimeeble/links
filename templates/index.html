@@ -2,19 +2,29 @@
    <head>
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
       <script src="{{ url_for('static', filename='links.js') }}"></script>
+      <style>
+      </style>
    </head>
 
    <body>
       <p>Hello</p>
 
-      <form method="POST">
-         <label for="full_url_input">Full URL:</label>
-         <input name="full_url" id="full_url_input" type="text" size="50" />
+      <form enctype="multipart/form-data" method="POST">
+         <div "url_input_div">
+            <label for="full_url_input">Full URL:</label>
+            <input name="full_url" id="full_url_input" type="text" size="50" />
+         </div>
 
-         <input id="shorten_button" type="submit" value="Shorten" />
+         <div id="imgfile_input_div">
+            <label for="imgfile_input">Image file:</label>
+            <input name="imgfile" id="fimgile_input" type="file" />
+         </div>
+
+         <div id="submit_div">
+            <input id="shorten_button" type="submit" value="Shorten" />
+         </div>
       </form>
       <div id="short_url">{{ short_url }}</div>
-
 
       <br>
       <br>

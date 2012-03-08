@@ -1,7 +1,7 @@
 
 function ajax_shorten(longurl, resultid) {
    $.ajax({
-      "url": "/",
+      "url": document.location.href,
       "type": "POST",
       "dataType": "json",
       "data": {"full_url": longurl},
@@ -23,7 +23,13 @@ jQuery(document).ready(function() {
 
    $("#shorten_button").click(function(evt) {
       full_url = $("#full_url_input").attr("value");
-      ajax_shorten(full_url, "#short_url");
+
+      if (full_url.length > 0) {
+         ajax_shorten(full_url, "#short_url");
+      } else {
+         alert("img");
+         return true;
+      }
 
       /* Block the submit button's normal action. */
       return false;
