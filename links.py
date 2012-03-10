@@ -127,6 +127,11 @@ class ShortDB(object):
       self.db[my_id] = surl
       return surl
 
+   def save(self, surl):
+      """Saves updates made to the ShortURL object.
+      """
+      pass
+
    def __str__(self):
       res = ""
       for surl in self.db.values():
@@ -181,6 +186,7 @@ def new():
       surl = sdb.new(full_url)
       surl.link_type = t
       surl.mime_type = m
+      sdb.save(surl)
 
       short_url = surl.get_short()
 
@@ -203,7 +209,9 @@ def get_resource_id(encoded_short_code):
    refer = "direct"
    if "referer" in flask.request.headers:
       refer = flask.request.headers["referer"]
+
    surl.follow_short_url(flask.request.remote_addr, refer)
+   sdb.save(surl)
 
    if surl.is_redir():
       return flask.make_response("Moved", 302, {"Location": surl.get_long()})
