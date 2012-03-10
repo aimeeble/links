@@ -7,7 +7,7 @@ function ajax_shorten(longurl, resultid) {
       "data": {"full_url": longurl},
 
       "success": function(data) {
-         $(resultid).text(data.short_url);
+         $(resultid).html("<a href=\"" + data.short_url + "\">" + data.short_url + "</a>");
       },
       "failure": function() {
          $(resultid).text("FAIL!");
