@@ -110,7 +110,6 @@ class ShortDB(object):
    def load(self, short_code):
       """Loads the info for short_url and returns a ShortURL object.
       """
-      print "Loading %s" % short_code
       if short_code not in self.db.keys():
          raise ShortInvalidException("invalid short URL")
 
@@ -125,7 +124,6 @@ class ShortDB(object):
 
       surl = ShortURL(my_id, short_url, long_url)
 
-      print "Saving id %s = %s" % (my_id, str(surl))
       self.db[my_id] = surl
       return surl
 
