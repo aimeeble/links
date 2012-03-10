@@ -193,7 +193,7 @@ def new():
       if flask.request.headers["accept"].find("application/json") >= 0:
          return '{"status": "ok", "short_url": "%s"}' % surl.get_short()
 
-   return flask.render_template("index.html", short_url=short_url)
+   return flask.render_template("index.html", short_url=short_url, base=BASE_URL)
 
 ##############################################################################
 # URL mappings
