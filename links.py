@@ -10,6 +10,7 @@ LEN = len(CHARS)
 
 REDIR = 1
 IMG = 2
+TEXT = 3
 
 class ShortURL(object):
    def __init__(self, short_id, short_url, long_url):
@@ -29,6 +30,9 @@ class ShortURL(object):
 
    def is_img(self):
       return self.link_type == IMG
+
+   def is_text(self):
+      return self.link_type == TEXT
 
    def get_mime_type(self):
       return self.mime_type
@@ -205,6 +209,28 @@ def new():
 
    return flask.render_template("index.html", short_url=short_url, base=BASE_URL)
 
+@app.route("/new_paste", methods = ["POST"])
+def new_paste():
+   if "p" not in flask.request.form:
+      return flask.make_response("Bad Request", 400)
+
+   text = flask.request.form["p"]
+   fullpath = Util.get_savable_filename(flask.request)
+   with open(fullpath, "w+") as f:
+      f.write(text)
+
+   surl = sdb.new(fullpath)
+   surl.link_type = TEXT
+   surl.mime_type = "text/plain"
+   sdb.save(surl)
+
+   short_url = surl.get_short()
+
+   if flask.request.headers["accept"].find("application/json") >= 0:
+      return '{"status": "ok", "short_url": "%s"}' % surl.get_short()
+   return "%s\n" % surl.get_short()
+
+
 ##############################################################################
 # URL mappings
 @app.route("/<encoded_short_code>", methods = ["GET"])
@@ -225,7 +251,7 @@ def get_resource_id(encoded_short_code):
 
    if surl.is_redir():
       return flask.make_response("Moved", 302, {"Location": surl.get_long()})
-   elif surl.is_img():
+   elif surl.is_img() or surl.is_text():
       return flask.send_file(surl.get_long(), mimetype=surl.get_mime_type())
    else:
       return flask.make_response("invalid type", 500)
