@@ -226,8 +226,6 @@ def new_paste():
 
    short_url = surl.get_short()
 
-   if flask.request.headers["accept"].find("application/json") >= 0:
-      return '{"status": "ok", "short_url": "%s"}' % surl.get_short()
    return "%s\n" % surl.get_short()
 
 
