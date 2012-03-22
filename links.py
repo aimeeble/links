@@ -3,7 +3,7 @@ import werkzeug
 import os
 import errno
 
-BASE_URL="http://phoenix:5000/"
+BASE_URL="http://ame.io/"
 CHARS = "123456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ"
 LEN = len(CHARS)
 
