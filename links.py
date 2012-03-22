@@ -2,6 +2,7 @@ import flask
 import werkzeug
 import os
 import errno
+import uuid
 
 BASE_URL="http://ame.io/"
 CHARS = "123456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ"
@@ -138,6 +139,27 @@ class ShortDB(object):
          res += str(surl) + "\n"
       return res
 
+class Util(object):
+   @classmethod
+   def _create_paths(cls, fullpath):
+      try:
+         os.makedirs(os.path.dirname(fullpath))
+      except OSError as exc:
+         if exc.errno == errno.EEXIST:
+            pass
+         else:
+            raise
+
+   @classmethod
+   def get_savable_filename(cls, req):
+      filename = str(uuid.uuid4())
+
+      # put the file in a subdir names after the remote client's IP addr
+      subpath = os.path.join(req.remote_addr, filename)
+      fullpath = os.path.join("static", subpath)
+
+      Util._create_paths(fullpath)
+      return fullpath
 
 app = flask.Flask(__name__)
 sdb = ShortDB(BASE_URL, None)
@@ -164,19 +186,7 @@ def new():
          full_url = flask.request.form["full_url"]
       else:
          f = flask.request.files["imgfile"]
-         filename = werkzeug.secure_filename(f.filename)
-
-         # put the file in a subdir names after the remote client's IP addr
-         subpath = os.path.join(flask.request.remote_addr, filename)
-         fullpath = os.path.join("static", subpath)
-
-         try:
-            os.makedirs(os.path.dirname(fullpath))
-         except OSError as exc:
-            if exc.errno == errno.EEXIST:
-               pass
-            else:
-               raise
+         fullpath = Util.get_savable_filename(flask.request)
          f.save(fullpath)
 
          full_url = fullpath
