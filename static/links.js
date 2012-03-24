@@ -27,7 +27,7 @@ jQuery(document).ready(function() {
       if (full_url.length > 0) {
          ajax_shorten(full_url, "#short_url");
       } else {
-         alert("img");
+         /* Files submit normally. */
          return true;
       }
 
