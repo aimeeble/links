@@ -7,18 +7,50 @@ from linklib.url import ShortURL
 from linklib.db import ShortDB
 from linklib.db import ShortInvalidException
 from linklib.util import Util
+import linkapi
 
 BASE_URL="http://ame.io/"
 
 app = flask.Flask(__name__)
 sdb = ShortDB(BASE_URL, None)
 
+linkapi.apis.set_sdb(sdb)
+app.register_blueprint(linkapi.v1, url_prefix='/api/v1')
 
-##############################################################################
-# Landing page and creation
-@app.route("/")
-def index():
-   return flask.make_response("Nothing", 404)
+@app.route("/<shortcode>", methods = ["GET"])
+def forward(shortcode):
+   # Look up code
+   try:
+      surl = sdb.load(shortcode)
+   except ShortInvalidException, e:
+      return flask.make_response("not found", 404)
+
+   # Update stats
+   remote = flask.request.remote_addr
+   refer = "direct"
+   if "referer" in flask.request.headers:
+      refer = flask.request.headers["referer"]
+   surl.follow_short_url(flask.request.remote_addr, refer)
+   sdb.save(surl)
+
+   # Redirect
+   if surl.is_redir():
+      return flask.make_response("Moved", 302, {"Location": surl.get_long()})
+   elif surl.is_img() or surl.is_text():
+      return flask.send_file(surl.get_long(), mimetype=surl.get_mime_type())
+   else:
+      return flask.make_response("invalid type", 500)
+
+@app.route("/<shortcode>+", methods = ["GET"])
+def stats(shortcode):
+   try:
+      surl = sdb.load(shortcode)
+   except ShortInvalidException, e:
+      return flask.make_response("not found", 404)
+   return str(surl)
+
+
+
 
 @app.route("/new", methods = ["GET", "POST"])
 def new():
@@ -109,10 +141,5 @@ def get_resource_id_stats(encoded_short_code):
 
    return str(surl)
 
-@app.route("/dump", methods = ["GET"])
-def dump():
-   return "<pre>%s</pre>" % str(sdb)
-
 if __name__ == '__main__':
-   sdb.new("http://www.google.com")
    app.run(debug=True,host='0.0.0.0')
