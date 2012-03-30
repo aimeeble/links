@@ -1,11 +1,9 @@
 from url import ShortURL
+import hashlib
 
 ShortInvalidException = Exception
 
 class ShortDB(object):
-   CHARS = "123456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ"
-   LEN = len(CHARS)
-
    def __init__(self, prefix, db_url):
       self.prefix = prefix
       self.db_url = db_url
@@ -13,40 +11,10 @@ class ShortDB(object):
 
       self.db = {}
 
-   @classmethod
-   def encode(cls, my_id):
-      """Converts my_id into a code for use in the short URL.
-      """
-      res = ""
-      while True:
-         mod = my_id % ShortDB.LEN
-         c = ShortDB.CHARS[mod]
-         res = c + res
-
-         my_id = my_id / ShortDB.LEN
-         if my_id == 0:
-            break
-      return res
-
-   @classmethod
-   def decode(cls, short_id):
-      """Converts the short_id into a numeric ID.
-      """
-      res = 0
-      for c in short_id:
-         num = ShortDB.CHARS.find(c)
-         res = res * ShortDB.LEN + num
-      return res
-
-   def get_new_id(self):
-      my_id = self.next_id
-      self.next_id += 1
-      return my_id
-
-   def _shorten(self, my_id, long_url):
-      """Returns a complete shortened URL.
-      """
-      return self.prefix + ShortDB.encode(my_id)
+   def _hash_url(self, long_url):
+      m = hashlib.md5()
+      m.update(long_url)
+      return m.hexdigest()
 
    def save(self, short_url_obj):
       """Takes the ShortURL object and saves it to the DB.
@@ -65,12 +33,12 @@ class ShortDB(object):
    def new(self, long_url):
       """Creates and returns a new ShortURL representing the url.
       """
-      my_id = self.get_new_id()
-      short_url = self._shorten(my_id, long_url)
+      short_code = self._hash_url(long_url)
+      short_url = self.prefix + short_code
 
-      surl = ShortURL(my_id, short_url, long_url)
+      surl = ShortURL(short_code, short_url, long_url)
 
-      self.db[my_id] = surl
+      self.db[short_code] = surl
       return surl
 
    def save(self, surl):
@@ -83,3 +51,7 @@ class ShortDB(object):
       for surl in self.db.values():
          res += str(surl) + "\n"
       return res
+
+   def __iter__(self):
+      return self.db.__iter__()
+
