@@ -3,8 +3,8 @@ class ShortURL(object):
    IMG = 2
    TEXT = 3
 
-   def __init__(self, short_id, short_url, long_url):
-      self.short_id = short_id
+   def __init__(self, short_code, short_url, long_url):
+      self.short_code = short_code
       self.short_url = short_url
       self.long_url = long_url
 
@@ -27,10 +27,13 @@ class ShortURL(object):
    def get_mime_type(self):
       return self.mime_type
 
-   def get_short(self):
+   def get_short_code(self):
+      return self.short_code
+
+   def get_short_url(self):
       return self.short_url
 
-   def get_long(self):
+   def get_long_url(self):
       return self.long_url
 
    def follow_short_url(self, remote_ip, referer):
