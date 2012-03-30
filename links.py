@@ -35,9 +35,9 @@ def forward(shortcode):
 
    # Redirect
    if surl.is_redir():
-      return flask.make_response("Moved", 302, {"Location": surl.get_long()})
+      return flask.make_response("Moved", 302, {"Location": surl.get_long_url()})
    elif surl.is_img() or surl.is_text():
-      return flask.send_file(surl.get_long(), mimetype=surl.get_mime_type())
+      return flask.send_file(surl.get_long_url(), mimetype=surl.get_mime_type())
    else:
       return flask.make_response("invalid type", 500)
 
