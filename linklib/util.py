@@ -1,3 +1,7 @@
+import uuid
+import os
+import errno
+
 class Util(object):
    @classmethod
    def _create_paths(cls, fullpath):
