@@ -7,9 +7,9 @@
    </head>
 
    <body>
-      <p>Hello</p>
+      <p>Hello, welcome to Aimee's URL shortener.</p>
 
-      <form enctype="multipart/form-data" method="POST">
+      <form enctype="multipart/form-data" method="POST" action="/api/v1/post">
          <div "url_input_div">
             <label for="full_url_input">Full URL:</label>
             <input name="full_url" id="full_url_input" type="text" size="50" />
@@ -17,7 +17,7 @@
 
          <div id="imgfile_input_div">
             <label for="imgfile_input">Image file:</label>
-            <input name="imgfile" id="fimgile_input" type="file" />
+            <input name="file" id="fimgile_input" type="file" />
          </div>
 
          <div id="submit_div">
