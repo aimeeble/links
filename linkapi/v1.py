@@ -10,7 +10,8 @@ from linklib.util import Util
 #     -> url=full_url
 #     <- {"url": full_url, "short_code": short_code, "short_url": short_url}
 # POST /post
-#     -> data=raw_data,type=mime_type(optional)
+#     -> d=raw_data,m=mime_type(optional)
+#     -> file=file-upload
 #     <- {"url": full_url, "short_code": short_code, "short_url": short_url}
 # GET  /expand/CODE
 #     -> nil
@@ -54,7 +55,7 @@ def post():
    surl = None
 
    if "file" in flask.request.files:
-      f = flask.request.files["imgfile"]
+      f = flask.request.files["file"]
       rel_path = Util.get_savable_filename(flask.request)
       f.save(rel_path)
 
