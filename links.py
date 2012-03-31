@@ -17,6 +17,10 @@ sdb = ShortDB(BASE_URL, None)
 linkapi.apis.set_sdb(sdb)
 app.register_blueprint(linkapi.v1, url_prefix='/api/v1')
 
+@app.route("/")
+def main():
+   return ""
+
 @app.route("/<shortcode>", methods = ["GET"])
 def forward(shortcode):
    # Look up code
@@ -49,42 +53,9 @@ def stats(shortcode):
       return flask.make_response("not found", 404)
    return str(surl)
 
-
-
-
-@app.route("/new", methods = ["GET", "POST"])
+@app.route("/new", methods = ["GET"])
 def new():
-   short_url = ""
-   t = ShortURL.REDIR
-   m = None
-
-   # Handle new data.
-   if flask.request.method == "POST":
-      if "full_url" not in flask.request.form and "imgfile" not in flask.request.files:
-         return flask.make_response("Bad Request", 400)
-
-      if "full_url" in flask.request.form and len(flask.request.form["full_url"]) > 0:
-         full_url = flask.request.form["full_url"]
-      else:
-         f = flask.request.files["imgfile"]
-         fullpath = Util.get_savable_filename(flask.request)
-         f.save(fullpath)
-
-         full_url = fullpath
-         t = ShortURL.IMG
-         m = f.mimetype
-
-      surl = sdb.new(full_url)
-      surl.link_type = t
-      surl.mime_type = m
-      sdb.save(surl)
-
-      short_url = surl.get_short()
-
-      if flask.request.headers["accept"].find("application/json") >= 0:
-         return '{"status": "ok", "short_url": "%s"}' % surl.get_short()
-
-   return flask.render_template("index.html", short_url=short_url, base=BASE_URL)
+   return flask.render_template("index.html", short_url=None, base=BASE_URL)
 
 @app.route("/new_paste", methods = ["POST"])
 def new_paste():
