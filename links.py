@@ -72,9 +72,9 @@ def new_paste():
    surl.mime_type = "text/plain"
    sdb.save(surl)
 
-   short_url = surl.get_short()
+   short_url = surl.get_short_url()
 
-   return "%s\n" % surl.get_short()
+   return "%s\n" % short_url
 
 
 ##############################################################################
