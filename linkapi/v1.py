@@ -112,8 +112,30 @@ def expand(short_code):
       }
 
 @api.route("/stats/<short_code>", methods = ["GET"])
-def stats(shortcode):
-   pass
+@jsonify
+def stats(short_code):
+   sdb = apis.get_sdb()
+
+   try:
+      surl = sdb.load(short_code)
+   except ShortInvalidException, e:
+      return {
+            "status": "FAIL",
+            "text": "Invalid short code",
+         }
+
+   hits = sdb.list_hits(short_code)
+   hit_list = []
+   for hit in hits:
+      hit_list.extend([hit])
+
+   return {
+         "status": "OK",
+         "url": surl.get_long_url(),
+         "short_code": surl.get_short_code(),
+         "short_url": surl.get_short_url(),
+         "hit_list": hit_list,
+      }
 
 @api.route("/dump", methods = ["GET"])
 @jsonify
