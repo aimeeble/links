@@ -5,6 +5,7 @@ import errno
 import uuid
 from linklib.url import ShortURL
 from linklib.db import ShortDB
+from linklib.db import ShortDBMongo
 from linklib.db import ShortInvalidException
 from linklib.util import Util
 import linkapi
@@ -12,7 +13,7 @@ import linkapi
 BASE_URL="http://ame.io/"
 
 app = flask.Flask(__name__)
-sdb = ShortDB(BASE_URL, None)
+sdb = ShortDBMongo(BASE_URL, host="mongodb", db="links")
 
 linkapi.apis.set_sdb(sdb)
 app.register_blueprint(linkapi.v1, url_prefix='/api/v1')
@@ -27,7 +28,7 @@ def forward(shortcode):
    try:
       surl = sdb.load(shortcode)
    except ShortInvalidException, e:
-      return flask.make_response("not found", 404)
+      return flask.make_response("invalid short code", 404)
 
    # Update stats
    remote = flask.request.remote_addr
