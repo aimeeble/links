@@ -85,41 +85,5 @@ def new_paste():
 
    return "%s\n" % short_url
 
-
-##############################################################################
-# URL mappings
-@app.route("/<encoded_short_code>", methods = ["GET"])
-def get_resource_id(encoded_short_code):
-   try:
-      short_code = ShortDB.decode(encoded_short_code)
-      surl = sdb.load(short_code)
-   except ShortInvalidException, e:
-      return flask.make_response("not found", 404)
-
-   remote = flask.request.remote_addr
-   refer = "direct"
-   if "referer" in flask.request.headers:
-      refer = flask.request.headers["referer"]
-
-   surl.follow_short_url(flask.request.remote_addr, refer)
-   sdb.save(surl)
-
-   if surl.is_redir():
-      return flask.make_response("Moved", 302, {"Location": surl.get_long()})
-   elif surl.is_img() or surl.is_text():
-      return flask.send_file(surl.get_long(), mimetype=surl.get_mime_type())
-   else:
-      return flask.make_response("invalid type", 500)
-
-@app.route("/<encoded_short_code>+", methods = ["GET"])
-def get_resource_id_stats(encoded_short_code):
-   try:
-      short_code = ShortDB.decode(encoded_short_code)
-      surl = sdb.load(short_code)
-   except ShortInvalidException, e:
-      return flask.make_response("not found", 404)
-
-   return str(surl)
-
 if __name__ == '__main__':
    app.run(debug=True,host='0.0.0.0')
