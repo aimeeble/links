@@ -11,10 +11,6 @@ class ShortURL(object):
       self.link_type = ShortURL.REDIR
       self.mime_type = None
 
-      self.count = 0
-      self.refers = {}
-      self.ips = {}
-
    def is_redir(self):
       return self.link_type == ShortURL.REDIR
 
@@ -52,5 +48,4 @@ class ShortURL(object):
          self.ips[remote_ip] += 1
 
    def __str__(self):
-      return "(URL %s -> %s :: count:%s, IPs:%s, Refers:%s)" % \
-            (self.short_url, self.long_url, self.count, self.ips, self.refers)
+      return "(URL %s = %s)" % (self.short_code, self.long_url)
