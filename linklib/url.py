@@ -11,6 +11,9 @@ class ShortURL(object):
       self.link_type = ShortURL.REDIR
       self.mime_type = None
 
+   def get_link_type(self):
+      return self.link_type
+
    def is_redir(self):
       return self.link_type == ShortURL.REDIR
 
