@@ -9,6 +9,7 @@ from linklib.db import ShortDBMongo
 from linklib.db import ShortInvalidException
 from linklib.util import Util
 import linkapi
+import time
 
 BASE_URL="http://ame.io/"
 
@@ -32,11 +33,16 @@ def forward(shortcode):
 
    # Update stats
    remote = flask.request.remote_addr
-   refer = "direct"
+   referrer = "direct"
    if "referer" in flask.request.headers:
-      refer = flask.request.headers["referer"]
-   surl.follow_short_url(flask.request.remote_addr, refer)
-   sdb.save(surl)
+      referrer = flask.request.headers["referer"]
+   hit_data = {
+            "remote_addr": flask.request.remote_addr,
+            "referrer": referrer,
+            "time": time.time(),
+            "agent": flask.request.headers.get("user-agent"),
+         }
+   sdb.record_hit(surl.get_short_code(), hit_data)
 
    # Redirect
    if surl.is_redir():
