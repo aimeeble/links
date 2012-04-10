@@ -1,5 +1,4 @@
 from url import ShortURL
-from stats import ShortStats
 from stats import ShortHit
 import hashlib
 import pymongo
