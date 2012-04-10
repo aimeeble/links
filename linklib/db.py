@@ -1,12 +1,14 @@
 from url import ShortURL
+from stats import ShortStats
+from stats import ShortHit
 import hashlib
 import pymongo
 
 ShortInvalidException = Exception
 
 class ShortDBBase(object):
-   def __init__(self, prefix, *args, **kwargs):
-      pass
+   def __init__(self, prefix):
+      self.prefix = prefix
 
    def _validate_hash(self, hash_code):
       """Validate the hash is not used.  It is common to override this in
@@ -49,17 +51,33 @@ class ShortDBBase(object):
       self.save(surl)
       return surl
 
+   def record_hit(self, short_code, stats):
+      """Records someone following the short-url.
+      """
+      pass
+
+   def list_hits(self, short_code):
+      """Returns a generator for all hits.  The generator should return a dict
+      containing the stats at the top level.
+      """
+      class _foo:
+         def __iter__(self):
+            return self
+         def next(self):
+            raise StopIteration()
+      return _foo()
+
 class ShortDB(ShortDBBase):
    def __init__(self, prefix, *args, **kwargs):
-      self.prefix = prefix
+      super(ShortDB, self).__init__(prefix)
       self.next_id = 0
-
       self.db = {}
+      self.stats = {}
 
    def save(self, surl):
       """Takes the ShortURL object and saves it to the DB.
       """
-      self.db[short_code] = surl
+      self.db[surl.get_short_code()] = surl
 
    def load(self, short_code):
       """Loads the info for short_url and returns a ShortURL object.
@@ -70,11 +88,6 @@ class ShortDB(ShortDBBase):
       surl = self.db[short_code]
       return surl
 
-   def save(self, surl):
-      """Saves updates made to the ShortURL object.
-      """
-      pass
-
    def __str__(self):
       res = ""
       for surl in self.db.values():
@@ -84,12 +97,22 @@ class ShortDB(ShortDBBase):
    def __iter__(self):
       return self.db.__iter__()
 
+   def record_hit(self, short_code, stats):
+      if short_code not in self.stats:
+         self.stats[short_code] = []
+      self.stats[short_code].append(stats)
+
+   def list_hits(self, short_code):
+      if short_code not in self.stats:
+         return super(ShortDB, self).list_hits(short_code)
+      return self.stats[short_code]
+
 class ShortDBMongo(ShortDBBase):
    def __init__(self, prefix, *args, **kwargs):
-      self.prefix = prefix
+      super(ShortDBMongo, self).__init__(prefix)
+
       self.host = kwargs.get("host")
       self.db_name = kwargs.get("db")
-
       self.connection = pymongo.Connection(self.host)
       self.db = pymongo.database.Database(self.connection, self.db_name)
 
@@ -135,4 +158,25 @@ class ShortDBMongo(ShortDBBase):
             row = self.cur.next()
             return row["short_code"]
       return _generator(self.db)
+
+   def record_hit(self, short_code, stats):
+      """Records someone following the short-url.
+      """
+      to_add = {
+            "short_code": short_code,
+            "stats": stats,
+         }
+      self.db.hits.insert(to_add)
+
+   def list_hits(self, short_code):
+      class _gen:
+         def __init__(self, cursor):
+            self.cursor = cursor
+         def __iter__(self):
+            return self
+         def next(self):
+            row = self.cursor.next()
+            return row["stats"]
+      cur = self.db.hits.find({"short_code": short_code}, {"stats": 1})
+      return _gen(cur)
 
