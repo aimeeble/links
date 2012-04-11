@@ -8,7 +8,7 @@ class ShortDBBase(object):
    def __init__(self, prefix):
       self.prefix = prefix
 
-   def _validate_hash(self, hash_code):
+   def _validate_hash(self, hash_code, long_url):
       """Validate the hash is not used.  It is common to override this in
       subclasses if they need to query the database or something.
       """
@@ -20,11 +20,16 @@ class ShortDBBase(object):
       """Takes a hash of the URL and, if valid, returns it
       """
       hash_code = None
+      length = 4
 
-      while not self._validate_hash(hash_code):
+      while not self._validate_hash(hash_code, long_url):
          m = hashlib.md5()
          m.update(long_url)
-         hash_code = m.hexdigest()
+         full_hash = m.hexdigest()
+         hash_code = full_hash[:length]
+         length += 1
+         if length > len(full_hash):
+            raise Exception("hash collision for %s" % hash_code)
 
       return hash_code
 
@@ -114,7 +119,7 @@ class ShortDBMongo(ShortDBBase):
       self.connection = pymongo.Connection(self.host)
       self.db = pymongo.database.Database(self.connection, self.db_name)
 
-   def _validate_hash(self, hash_code):
+   def _validate_hash(self, hash_code, long_url):
       if not hash_code:
          return False
 
@@ -122,6 +127,11 @@ class ShortDBMongo(ShortDBBase):
       if cur.count() == 0:
          print "valid: %s" % hash_code
          return True
+      row = cur.next()
+      if row["long_url"] == long_url:
+         print "rehash valid: %s" % hash_code
+         return True
+
       print "invalid: %s" % hash_code
       return False
 
