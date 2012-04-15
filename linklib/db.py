@@ -1,6 +1,7 @@
 from url import ShortURL
 import hashlib
 import pymongo
+import base64
 
 ShortInvalidException = Exception
 
@@ -25,7 +26,8 @@ class ShortDBBase(object):
       while not self._validate_hash(hash_code, long_url):
          m = hashlib.md5()
          m.update(long_url)
-         full_hash = m.hexdigest()
+         digest = m.digest()
+         full_hash = base64.urlsafe_b64encode(digest)
          hash_code = full_hash[:length]
          length += 1
          if length > len(full_hash):
