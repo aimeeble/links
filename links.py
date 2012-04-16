@@ -10,8 +10,9 @@ from linklib.db import ShortInvalidException
 from linklib.util import Util
 import linkapi
 import time
+import urlparse
 
-BASE_URL="http://ame.io/"
+BASE_URL="http://localhost:5000/"
 
 app = flask.Flask(__name__)
 sdb = ShortDBMongo(BASE_URL, host="mongodb", db="links")
@@ -66,7 +67,37 @@ def stats(shortcode):
       surl = sdb.load(shortcode)
    except ShortInvalidException, e:
       return flask.make_response("not found", 404)
-   return str(surl)
+
+   params = {
+         "title": "... url title goes here ...",
+         "short_url": surl.get_short_url(),
+         "long_url": surl.get_long_url(),
+         "short_code": surl.get_short_code(),
+         "referrers": {}, # {ref->count}
+         "locations": {}, # {IP->count}
+         "hits": [],
+      }
+
+   # collect the stats
+   itr = sdb.list_hits(surl.get_short_code())
+   for hit in itr:
+      hit["time"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(hit["time"]))
+
+      # Referrers
+      ref = hit["referrer"]
+      if ref not in params["referrers"]:
+         params["referrers"][ref] = 0
+      params["referrers"][ref] += 1
+
+      # Location (IP)
+      ip = hit["remote_addr"]
+      if ip not in params["locations"]:
+         params["locations"][ip] = 0
+      params["locations"][ip] += 1
+
+      params["hits"] += [hit]
+
+   return flask.render_template("stats.html", p=params)
 
 @app.route("/new", methods = ["GET"])
 def new():
