@@ -10,7 +10,7 @@ from linklib.db import ShortInvalidException
 from linklib.util import Util
 import linkapi
 import time
-import urlparse
+import GeoIP
 
 BASE_URL="http://localhost:5000/"
 
@@ -68,6 +68,8 @@ def stats(shortcode):
    except ShortInvalidException, e:
       return flask.make_response("not found", 404)
 
+   geo = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
+
    params = {
          "title": "... url title goes here ...",
          "short_url": surl.get_short_url(),
@@ -81,7 +83,6 @@ def stats(shortcode):
    # collect the stats
    itr = sdb.list_hits(surl.get_short_code())
    for hit in itr:
-      hit["time"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(hit["time"]))
 
       # Referrers
       ref = hit["referrer"]
@@ -92,9 +93,16 @@ def stats(shortcode):
       # Location (IP)
       ip = hit["remote_addr"]
       if ip not in params["locations"]:
-         params["locations"][ip] = 0
-      params["locations"][ip] += 1
+         cc = geo.country_code_by_addr(ip)
+         if not cc:
+            cc = "??"
+         params["locations"][ip] = (cc, 0)
+      old = params["locations"][ip]
+      params["locations"][ip] += (old[0], old[1] + 1)
 
+      hit["time"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(hit["time"]))
+      cc = geo.country_code_by_addr(hit["remote_addr"])
+      hit["cc"] = cc if cc else "??"
       params["hits"] += [hit]
 
    return flask.render_template("stats.html", p=params)

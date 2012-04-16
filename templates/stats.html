@@ -68,12 +68,14 @@
       <table>
          <tr>
             <th>IP</th>
+            <th>CC</th>
             <th>Hits</th>
          </tr>
          {% for loc in p.locations %}
          <tr>
             <td>{{ loc }}</td>
-            <td>{{ p.locations[loc] }}</td>
+            <td>{{ p.locations[loc][0] }}</td>
+            <td>{{ p.locations[loc][1] }}</td>
          </tr>
          {% endfor %}
       </table>
@@ -86,6 +88,7 @@
             <th>Time</th>
             <th>Referrer</th>
             <th>IP</th>
+            <th>CC</th>
             <th>Agent</th>
          </tr>
          {% for hit in p.hits %}
@@ -93,6 +96,7 @@
             <td>{{ hit.time }}</td>
             <td>{{ hit.referrer }}</td>
             <td>{{ hit.remote_addr }}</td>
+            <td>{{ hit.cc }}</td>
             <td>{{ hit.agent }}</td>
          </tr>
          {% endfor %}
