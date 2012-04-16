@@ -14,8 +14,8 @@ function load_recent_urls(divid) {
             html += "<td>" + url.short_code + "</td>";
             html += "<td>" + url.url + "</td>";
             html += "<td>";
-            html += "<a href=\"" + url.short_url + "\">Link</a> &nbsp; | &nbsp;";
-            html += "<a href=\"" + url.short_url + "+\">Stats</a>";
+            html += "<a href=\"/" + url.short_code + "\">Link</a> &nbsp; | &nbsp;";
+            html += "<a href=\"/" + url.short_code + "+\">Stats</a>";
             html += "</td></tr>\n";
             $(divid).append(html);
          }
