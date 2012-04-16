@@ -98,7 +98,7 @@ def stats(shortcode):
             cc = "??"
          params["locations"][ip] = (cc, 0)
       old = params["locations"][ip]
-      params["locations"][ip] += (old[0], old[1] + 1)
+      params["locations"][ip] = (old[0], old[1] + 1)
 
       hit["time"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(hit["time"]))
       cc = geo.country_code_by_addr(hit["remote_addr"])
