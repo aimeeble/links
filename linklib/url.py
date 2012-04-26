@@ -35,20 +35,5 @@ class ShortURL(object):
    def get_long_url(self):
       return self.long_url
 
-   def follow_short_url(self, remote_ip, referer):
-      """Updates the stats after someone followed this URL.
-      """
-      self.count += 1
-
-      if referer not in self.refers:
-         self.refers[referer] = 1
-      else:
-         self.refers[referer] += 1
-
-      if remote_ip not in self.ips:
-         self.ips[remote_ip] = 1
-      else:
-         self.ips[remote_ip] += 1
-
    def __str__(self):
       return "(URL %s = %s)" % (self.short_code, self.long_url)
