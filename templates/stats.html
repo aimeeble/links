@@ -86,6 +86,7 @@
       <table>
          <tr>
             <th>Time</th>
+            <th>Method</th>
             <th>Referrer</th>
             <th>IP</th>
             <th>CC</th>
@@ -94,6 +95,7 @@
          {% for hit in p.hits %}
          <tr>
             <td>{{ hit.time }}</td>
+            <td>{{ hit.method }}</td>
             <td>{{ hit.referrer }}</td>
             <td>{{ hit.remote_addr }}</td>
             <td>{{ hit.cc }}</td>

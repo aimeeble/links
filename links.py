@@ -15,7 +15,7 @@ import GeoIP
 BASE_URL="http://localhost:5000/"
 
 app = flask.Flask(__name__)
-sdb = ShortDBMongo(BASE_URL, host="mongodb", db="links")
+sdb = ShortDBMongo(BASE_URL, host="localhost", db="links")
 
 linkapi.apis.set_sdb(sdb)
 app.register_blueprint(linkapi.v1, url_prefix='/api/v1')
@@ -42,6 +42,7 @@ def forward(shortcode):
             "referrer": referrer,
             "time": time.time(),
             "agent": flask.request.headers.get("user-agent"),
+            "method": flask.request.method,
          }
    sdb.record_hit(surl.get_short_code(), hit_data)
 
@@ -49,7 +50,9 @@ def forward(shortcode):
    if surl.is_redir():
       return flask.make_response("Moved", 302, {"Location": surl.get_long_url()})
    elif surl.is_img():
-      return flask.send_file(surl.get_long_url(), mimetype=surl.get_mime_type())
+      return flask.send_file(surl.get_long_url(),
+                             mimetype=surl.get_mime_type(),
+                             add_etags=False)
    elif surl.is_text():
       lang = ""
       print flask.request.args
@@ -83,7 +86,6 @@ def stats(shortcode):
    # collect the stats
    itr = sdb.list_hits(surl.get_short_code())
    for hit in itr:
-
       # Referrers
       ref = hit["referrer"]
       if ref not in params["referrers"]:
