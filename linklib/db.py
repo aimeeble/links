@@ -150,7 +150,6 @@ class ShortDBMongo(ShortDBBase):
          },
          {
             "short_code": surl.get_short_code(),
-            "short_url": surl.get_short_url(),
             "long_url": surl.get_long_url(),
             "link_type": surl.get_link_type(),
             "mime_type": surl.get_mime_type(),
@@ -164,8 +163,9 @@ class ShortDBMongo(ShortDBBase):
          raise ShortInvalidException("invalid short code")
       row = cur.next()
 
+      short_url = self.prefix + short_code
       surl = ShortURL(row.get("short_code"),
-            row.get("short_url"),
+            short_url,
             row.get("long_url"),
             row.get("info"))
       surl.link_type = row.get("link_type")
