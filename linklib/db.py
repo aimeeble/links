@@ -2,6 +2,7 @@ from url import ShortURL
 import hashlib
 import pymongo
 import base64
+from linklib.util import get_page_info
 
 ShortInvalidException = Exception
 
@@ -51,7 +52,12 @@ class ShortDBBase(object):
       short_code = self._hash_url(long_url)
       short_url = self.prefix + short_code
 
-      surl = ShortURL(short_code, short_url, long_url)
+      if long_url.startswith("static/"):
+         info = get_page_info(self.prefix + long_url)
+      else:
+         info = get_page_info(long_url)
+
+      surl = ShortURL(short_code, short_url, long_url, info)
 
       self.save(surl)
       return surl
@@ -148,6 +154,7 @@ class ShortDBMongo(ShortDBBase):
             "long_url": surl.get_long_url(),
             "link_type": surl.get_link_type(),
             "mime_type": surl.get_mime_type(),
+            "info": surl.get_info(),
          },
          True)
 
@@ -159,7 +166,8 @@ class ShortDBMongo(ShortDBBase):
 
       surl = ShortURL(row.get("short_code"),
             row.get("short_url"),
-            row.get("long_url"))
+            row.get("long_url"),
+            row.get("info"))
       surl.link_type = row.get("link_type")
       surl.mime_type = row.get("mime_type")
 

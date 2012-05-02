@@ -3,10 +3,11 @@ class ShortURL(object):
    IMG = 2
    TEXT = 3
 
-   def __init__(self, short_code, short_url, long_url):
+   def __init__(self, short_code, short_url, long_url, info):
       self.short_code = short_code
       self.short_url = short_url
       self.long_url = long_url
+      self.info = info
 
       self.link_type = ShortURL.REDIR
       self.mime_type = None
@@ -34,6 +35,9 @@ class ShortURL(object):
 
    def get_long_url(self):
       return self.long_url
+
+   def get_info(self):
+      return self.info
 
    def __str__(self):
       return "(URL %s = %s)" % (self.short_code, self.long_url)
