@@ -48,13 +48,14 @@ def get_page_info(url):
    soup = bs4.BeautifulSoup(html, "lxml")
 
    if soup.title:
-      info["title"] = soup.title.string
+      info["title"] = soup.title.get_text(strip=True)
 
    info["meta"] = {}
    for meta in soup.find_all("meta"):
       key = meta.get("name")
       val = meta.get("content")
       if key and val:
+         key = key.replace(".", "_")
          info["meta"][key] = val
 
    info["mimetype"] = res.headers.gettype()
