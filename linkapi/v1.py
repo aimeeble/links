@@ -38,7 +38,7 @@ def shrink():
    full_url = flask.request.form["url"]
    surl = sdb.new(full_url)
    surl.link_type = ShortURL.REDIR
-   surl.mime_type = None
+   surl.mime_type = surl.info["mimetype"] if surl.info else None
    sdb.save(surl)
 
    return {
@@ -64,6 +64,9 @@ def post():
       surl = sdb.new(full_url)
       surl.link_type = ShortURL.IMG
       surl.mime_type = f.mimetype
+      if not surl.info:
+         surl.info = {}
+      surl.info["title"] = f.filename
       sdb.save(surl)
 
    elif "d" in flask.request.form:
