@@ -73,8 +73,20 @@ def stats(shortcode):
 
    geo = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
 
+   LINK_TYPES = {}
+   LINK_TYPES[1] = "REDIR"
+   LINK_TYPES[2] = "IMG"
+   LINK_TYPES[3] = "TEXT"
+
+   info = surl.get_info()
+   meta = info.get("meta") if info else None
+
    params = {
-         "title": "... url title goes here ...",
+         "title": info.get("title") if info else "Unknown",
+         "description": meta.get("description") if meta else "None",
+         "contentlength": info.get("length", "???") if info else "???",
+         "link_type": LINK_TYPES[surl.get_link_type()],
+         "mime_type": surl.get_mime_type(),
          "short_url": surl.get_short_url(),
          "long_url": surl.get_long_url(),
          "short_code": surl.get_short_code(),
@@ -133,4 +145,4 @@ def new_paste():
    return "%s\n" % short_url
 
 if __name__ == '__main__':
-   app.run(debug=True,host='0.0.0.0')
+   app.run(debug=True, host='0.0.0.0', threaded=True)
