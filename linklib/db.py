@@ -52,10 +52,13 @@ class ShortDBBase(object):
       short_code = self._hash_url(long_url)
       short_url = self.prefix + short_code
 
-      if long_url.startswith("static/"):
-         info = get_page_info(self.prefix + long_url)
-      else:
-         info = get_page_info(long_url)
+      try:
+         if long_url.startswith("static/"):
+            info = get_page_info(self.prefix + long_url)
+         else:
+            info = get_page_info(long_url)
+      except:
+         info = {}
 
       surl = ShortURL(short_code, short_url, long_url, info)
 

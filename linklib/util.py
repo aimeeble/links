@@ -34,7 +34,19 @@ def get_page_info(url):
    info = {}
 
    # Start by getting head.  We only do fancy stuff when it's the right type.
-   res = urllib2.urlopen(HeadRequest(url))
+   have_body = False
+   try:
+      res = urllib2.urlopen(HeadRequest(url))
+   except urllib2.HTTPError, e:
+      if e.code == 405:
+         # Requesting head is invalid.  Just get it all then...
+         have_body = True
+         res = urllib2.urlopen(url)
+      else:
+         # On any other HTTP error, just abort
+         print "Got HTTPError.code = %d on HEAD." % (e.code)
+         raise e
+
    if res.headers.gettype() != "text/html":
       info["mimetype"] = res.headers.gettype()
       length = res.headers.get("Content-length")
@@ -43,7 +55,8 @@ def get_page_info(url):
       return info
 
    # This makes the assumption that HTML files are small, so we fetch it all.
-   res = urllib2.urlopen(url)
+   if not have_body:
+      res = urllib2.urlopen(url)
    html = res.read()
    soup = bs4.BeautifulSoup(html, "lxml")
 
