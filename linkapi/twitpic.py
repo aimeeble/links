@@ -6,8 +6,6 @@ from util import jsonify
 from werkzeug import secure_filename
 import urllib2
 import json
-from PIL import Image
-import os
 
 api = flask.Blueprint('twitpic', __name__)
 
@@ -64,9 +62,6 @@ def upload_fmt(fmt):
    if "X-Verify-Credentials-Authorization" not in headers:
       raise Exception("creds missing")
 
-   if "source" not in form:
-      raise Exception("source missing")
-
    if "message" not in form:
       raise Exception("message missing")
 
@@ -84,16 +79,11 @@ def upload_fmt(fmt):
    mime_type = file.content_type#.split('/')[1]
 
    file.save(sec_file)
-   img = Image.open(sec_file)
-   st = os.fstat(img.fp.fileno())
 
    result = {
          "id": "FAKE",
          "text": form["message"],
          "url": "http://ame.io/FAKE",
-         "width": img.size[0],
-         "height": img.size[1],
-         "size": st.st_size,
          "type": mime_type,
          "timestamp": "Wed, 05 May 2010 16:11:48 +0000",
          "user": {
