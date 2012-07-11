@@ -1,4 +1,7 @@
 import flask
+from common import apis
+from linklib.db import ShortDB
+from linklib.url import ShortURL
 from util import jsonify
 from werkzeug import secure_filename
 import urllib2
@@ -23,6 +26,24 @@ def _verify_oauth(url, authorization):
 
    body = json.loads(body)
    return body
+
+
+@api.route("/shorten", methods = ["GET"])
+@jsonify
+def shorten():
+   sdb = apis.get_sdb()
+   q = flask.request.args
+
+   if "u" not in q:
+      return None
+
+   full_url = q.get("u")
+   surl = sdb.new(full_url)
+   surl.link_type = ShortURL.REDIR
+   surl.mime_type = surl.info["mimetype"] if surl.info else None
+   sdb.save(surl)
+
+   return {"shorturl": surl.get_short_url()}
 
 
 @api.route("/upload", methods = ["POST"])
