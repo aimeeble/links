@@ -10,7 +10,7 @@ from linklib.db import ShortInvalidException
 from linklib.util import Util
 import linkapi
 import time
-import GeoIP
+import pygeoip
 
 BASE_URL="http://localhost:5000/"
 
@@ -71,7 +71,7 @@ def stats(shortcode):
    except ShortInvalidException, e:
       return flask.make_response("not found", 404)
 
-   geo = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
+   geo = pygeoip.GeoIP('data/GeoIP.dat')
 
    LINK_TYPES = {}
    LINK_TYPES[1] = "REDIR"
