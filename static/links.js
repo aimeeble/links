@@ -10,9 +10,15 @@ function load_recent_urls(divid) {
          for (id in data.result) {
             url = data.result[id];
 
+            var MAX_WIDTH = 80;
+            long_url = url.url.substring(0, MAX_WIDTH);
+            if (url.url.length > MAX_WIDTH) {
+               long_url += '...';
+            }
+
             html = "<tr>";
             html += "<td>" + url.short_code + "</td>";
-            html += "<td>" + url.url + "</td>";
+            html += "<td>" + long_url + "</td>";
             html += "<td>";
             html += "<a href=\"" + url.short_url + "\">Link</a> &nbsp; | &nbsp;";
             html += "<a href=\"" + url.short_url + "+\">Stats</a>";
