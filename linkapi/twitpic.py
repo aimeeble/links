@@ -116,15 +116,35 @@ def upload_fmt(fmt):
          raise Exception("failed oauth echo")
 
    file = files["media"]
-   sec_file = secure_filename(file.filename)
-   mime_type = file.content_type#.split('/')[1]
 
-   file.save(sec_file)
+   # Temporarily save to disk
+   tmp_dir = tempfile.mkdtemp(suffix='links')
+   tmp_filename = None
+   res = None
+   try:
+      sec_filename = secure_filename(file.filename)
+      tmp_filename = os.path.join(tmp_dir, sec_filename)
+      mime_type = file.content_type
+      file.save(tmp_filename)
+
+      # Post to shortening service
+      res = _post(tmp_filename)
+
+      if not res:
+         raise Exception("failed to post/shorten file")
+
+   finally:
+      # Cleanup temp file
+      try:
+         os.unlink(tmp_filename)
+         os.unlink(tmp_dir)
+      except Exception, e:
+         print "failed to unlink: %s" % (str(e))
 
    result = {
-         "id": "FAKE",
+         "id": res["short_code"],
          "text": form["message"],
-         "url": "http://ame.io/FAKE",
+         "url": res["short_url"],
          "type": mime_type,
          "timestamp": "Wed, 05 May 2010 16:11:48 +0000",
          "user": {
