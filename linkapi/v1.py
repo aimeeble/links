@@ -85,6 +85,8 @@ def post():
       else:
          surl.mime_type = "text/plain"
       sdb.save(surl)
+   else:
+      raise Exception("missing required field")
 
    return {
          "status": "OK",
