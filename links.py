@@ -34,6 +34,10 @@ def main():
 
 @app.route("/<shortcode>", methods = ["GET"])
 def forward(shortcode):
+   return forward_full(shortcode, None)
+
+@app.route("/<shortcode>/<path:path>", methods = ["GET"])
+def forward_full(shortcode, path):
    # Look up code
    try:
       surl = sdb.load(shortcode)
@@ -51,13 +55,18 @@ def forward(shortcode):
             "time": time.time(),
             "agent": flask.request.headers.get("user-agent"),
             "method": flask.request.method,
-            "qs": args2qs(flask.request.args)
+            "qs": args2qs(flask.request.args),
+            "path": path,
          }
    sdb.record_hit(surl.get_short_code(), hit_data)
 
    # Redirect
    if surl.is_redir():
-      return flask.make_response("Moved", 302, {"Location": surl.get_long_url()})
+      if path:
+         dest_url = "%s/%s" % (surl.get_long_url(), path)
+      else:
+         dest_url = surl.get_long_url()
+      return flask.make_response("Moved", 302, {"Location": dest_url})
    elif surl.is_img():
       return flask.send_file(surl.get_long_url(),
                              mimetype=surl.get_mime_type(),
