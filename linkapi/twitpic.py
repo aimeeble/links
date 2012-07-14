@@ -84,11 +84,12 @@ def upload_fmt(fmt):
    files = flask.request.files
    headers = flask.request.headers
 
-   if "X-Auth-Service-Provider" not in headers:
-      raise Exception("service provider missing")
+   skip_auth = False
+   if "skip_auth" in flask.request.args:
+      skip_auth = True
 
-   if "X-Verify-Credentials-Authorization" not in headers:
-      raise Exception("creds missing")
+   if fmt != 'json':
+      raise Exception("We only support json")
 
    if "message" not in form:
       raise Exception("message missing")
@@ -97,10 +98,22 @@ def upload_fmt(fmt):
       raise Exception("media missing")
 
    # Verify
-   twit_info = _verify_oauth(headers["X-Auth-Service-Provider"],
-                             headers["X-Verify-Credentials-Authorization" ])
-   if not twit_info:
-      raise Exception("failed auth")
+   if skip_auth:
+      twit_info = {
+            "screen_name": "unknown",
+            "id": "unknown",
+         }
+   else:
+      if "X-Auth-Service-Provider" not in headers:
+         raise Exception("OAuth service provider missing")
+
+      if "X-Verify-Credentials-Authorization" not in headers:
+         raise Exception("OAuth creds missing")
+
+      twit_info = _verify_oauth(headers["X-Auth-Service-Provider"],
+                              headers["X-Verify-Credentials-Authorization" ])
+      if not twit_info:
+         raise Exception("failed oauth echo")
 
    file = files["media"]
    sec_file = secure_filename(file.filename)
