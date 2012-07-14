@@ -6,7 +6,7 @@ class ShortURL(object):
    IMG = 2
    TEXT = 3
 
-   def __init__(self, short_code=None, short_url=None, long_url=None, info={}):
+   def __init__(self, short_code, short_url, long_url=None, info={}):
       self.short_code = short_code
       self.short_url = short_url
       self.long_url = long_url
@@ -50,7 +50,6 @@ class ShortURL(object):
    def serialize(self):
       return {
             "short_code": self.short_code,
-            "short_url": self.short_url,
             "long_url": self.long_url,
             "link_type": self.link_type,
             "mime_type": self.mime_type,
@@ -60,7 +59,6 @@ class ShortURL(object):
 
    def deserialize(self, data):
       self.short_code = data.get("short_code")
-      self.short_url = data.get("short_url")
       self.long_url = data.get("long_url")
       self.link_type = data.get("link_type")
       self.mime_type = data.get("mime_type")

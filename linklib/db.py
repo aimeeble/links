@@ -161,7 +161,7 @@ class ShortDBMongo(ShortDBBase):
       row = cur.next()
 
       short_url = self.prefix + short_code
-      surl = ShortURL()
+      surl = ShortURL(short_code, short_url)
       surl.deserialize(row)
 
       return surl
