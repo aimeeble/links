@@ -11,6 +11,7 @@ from linklib.util import Util
 import linkapi
 import time
 import pygeoip
+import urllib
 
 BASE_URL="http://localhost:5000/"
 
@@ -19,6 +20,13 @@ sdb = ShortDBMongo(BASE_URL, host="localhost", db="links")
 
 linkapi.apis.set_sdb(sdb)
 app.register_blueprint(linkapi.v1, url_prefix='/api/v1')
+
+def args2qs(args):
+   r = ''
+   for key,vals in args.iterlists():
+      for val in vals:
+         r += '&%s=%s' % (urllib.quote_plus(key), urllib.quote_plus(val))
+   return '?' + r[1:]
 
 @app.route("/")
 def main():
@@ -43,6 +51,7 @@ def forward(shortcode):
             "time": time.time(),
             "agent": flask.request.headers.get("user-agent"),
             "method": flask.request.method,
+            "qs": args2qs(flask.request.args)
          }
    sdb.record_hit(surl.get_short_code(), hit_data)
 
