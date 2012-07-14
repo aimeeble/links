@@ -11,6 +11,7 @@ class ShortURL(object):
 
       self.link_type = ShortURL.REDIR
       self.mime_type = None
+      self.qs = None
 
    def get_link_type(self):
       return self.link_type
