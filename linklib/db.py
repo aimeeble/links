@@ -151,13 +151,7 @@ class ShortDBMongo(ShortDBBase):
          {
             "short_code": surl.get_short_code(),
          },
-         {
-            "short_code": surl.get_short_code(),
-            "long_url": surl.get_long_url(),
-            "link_type": surl.get_link_type(),
-            "mime_type": surl.get_mime_type(),
-            "info": surl.get_info(),
-         },
+         surl.serialize(),
          True)
 
    def load(self, short_code):
@@ -167,12 +161,8 @@ class ShortDBMongo(ShortDBBase):
       row = cur.next()
 
       short_url = self.prefix + short_code
-      surl = ShortURL(row.get("short_code"),
-            short_url,
-            row.get("long_url"),
-            row.get("info"))
-      surl.link_type = row.get("link_type")
-      surl.mime_type = row.get("mime_type")
+      surl = ShortURL()
+      surl.deserialize(row)
 
       return surl
 
