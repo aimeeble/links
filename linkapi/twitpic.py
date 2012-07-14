@@ -5,7 +5,10 @@ from linklib.url import ShortURL
 from util import jsonify
 from werkzeug import secure_filename
 import urllib2
+import urllib2_file
 import json
+import tempfile
+import os
 
 api = flask.Blueprint('twitpic', __name__)
 
@@ -24,6 +27,31 @@ def _verify_oauth(url, authorization):
 
    body = json.loads(body)
    return body
+
+
+def _post(filename):
+   sdb = apis.get_sdb()
+
+   with open(filename, "r") as fh:
+      url = "%sapi/v1/post" % sdb.prefix
+
+      print "Uploaded '%s' as '%s'" % (filename, os.path.basename(filename))
+      data = {
+            "file": {
+               "fd": fh,
+               "filename": "%s" % os.path.basename(filename),
+            },
+         }
+
+      req = urllib2.Request(url, data)
+      con = urllib2.urlopen(req)
+      body = con.read()
+
+      if 200 != con.getcode():
+         return None
+
+      body = json.loads(body)
+      return body
 
 
 @api.route("/shorten", methods = ["GET"])
