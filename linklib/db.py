@@ -169,7 +169,7 @@ class ShortDBMongo(ShortDBBase):
    def __iter__(self):
       class _generator:
          def __init__(self, db):
-            self.cur = db.urls.find({}, {"short_code": 1})
+            self.cur = db.urls.find({}, {"short_code": 1}).sort("latest_short",pymongo.DESCENDING)
             print "Generating over %d rows" % self.cur.count()
          def next(self):
             row = self.cur.next()
