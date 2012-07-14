@@ -35,7 +35,6 @@ def _post(filename):
    with open(filename, "r") as fh:
       url = "%sapi/v1/post" % sdb.prefix
 
-      print "Uploaded '%s' as '%s'" % (filename, os.path.basename(filename))
       data = {
             "file": {
                "fd": fh,
@@ -137,7 +136,7 @@ def upload_fmt(fmt):
       # Cleanup temp file
       try:
          os.unlink(tmp_filename)
-         os.unlink(tmp_dir)
+         os.rmdir(tmp_dir)
       except Exception, e:
          print "failed to unlink: %s" % (str(e))
 
