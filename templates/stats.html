@@ -18,6 +18,7 @@
       }
 
    </style>
+   <link href="static/flags.css" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
@@ -109,13 +110,17 @@
             <th>Agent</th>
          </tr>
          {% for hit in p.hits %}
+         {% if hit.bot %}
+         <tr style="background-color: #faa">
+         {% else %}
          <tr>
+         {% endif %}
             <td>{{ hit.time }}</td>
             <td>{{ hit.method }}</td>
             <td>{{ hit.referrer }}</td>
             <td>{{ hit.remote_addr }}</td>
-            <td>{{ hit.cc }}</td>
-            <td>{{ hit.agent }}</td>
+            <td><img src="" class="flag flag-{{ hit.cc.lower() }}" title="{{ hit.cc }}" alt="{{ hit.cc }}"/></td>
+            <td><a title="{{ hit.agent }}">{{ hit.agent[:20] if hit.agent }}</a></td>
          </tr>
          {% endfor %}
       </table>
