@@ -83,6 +83,28 @@ def forward_full(shortcode, path):
    else:
       return flask.make_response("invalid type", 500)
 
+
+def _isbot(refer, agent):
+   '''Try and guess if this represents a bot or not
+   '''
+   agent_list = [
+         "Twitterbot/1.0",
+         "InAGist URL Resolver (http://inagist.com)",
+         "UnwindFetchor/1.0 (+http://www.gnip.com/)",
+         "Mozilla/5.0 (compatible; TweetmemeBot/2.11; +http://tweetmeme.com/)",
+         "Mozilla/5.0 (compatible; Butterfly/1.0; +http://labs.topsy.com/butterfly/) Gecko/2009032608 Firefox/3.0.8",
+         "Mozilla/5.0 (compatible; PaperLiBot/2.1; http://support.paper.li/entries/20023257-what-is-paper-li)",
+         "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
+         "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2) Gecko/20100115 Firefox/3.6 (FlipboardProxy/1.1; +http://flipboard.com/browserproxy)",
+         "TwitJobSearch.com",
+      ]
+
+   if agent in agent_list:
+      return True
+
+   return False
+
+
 @app.route("/<shortcode>+", methods = ["GET"])
 def stats(shortcode):
    try:
@@ -122,6 +144,8 @@ def stats(shortcode):
       if ref not in params["referrers"]:
          params["referrers"][ref] = 0
       params["referrers"][ref] += 1
+
+      hit["bot"] = _isbot(hit["referrer"], hit["agent"])
 
       # Location (IP)
       ip = hit["remote_addr"]
