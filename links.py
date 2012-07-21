@@ -113,6 +113,7 @@ def stats(shortcode):
       return flask.make_response("not found", 404)
 
    geo = pygeoip.GeoIP('data/GeoIP.dat')
+   gic = pygeoip.GeoIP('data/GeoLiteCity.dat')
 
    LINK_TYPES = {}
    LINK_TYPES[1] = "REDIR"
@@ -158,8 +159,13 @@ def stats(shortcode):
       params["locations"][ip] = (old[0], old[1] + 1)
 
       hit["time"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(hit["time"]))
+
       cc = geo.country_code_by_addr(hit["remote_addr"])
       hit["cc"] = cc if cc else "??"
+
+      area = gic.record_by_addr(ip)
+      hit["area"] = area
+
       params["hits"] += [hit]
 
    return flask.render_template("stats.html", p=params)

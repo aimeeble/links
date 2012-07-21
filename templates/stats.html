@@ -119,7 +119,10 @@
             <td>{{ hit.method }}</td>
             <td>{{ hit.referrer }}</td>
             <td>{{ hit.remote_addr }}</td>
-            <td><img src="" class="flag flag-{{ hit.cc.lower() }}" title="{{ hit.cc }}" alt="{{ hit.cc }}"/></td>
+            <td>
+               <img src="" class="flag flag-{{ hit.cc.lower() }}" title="{{ hit.cc }}" alt="{{ hit.cc }}"/>
+               <span>{{ hit.area.city }}, {{ hit.area.region_name }}</span>
+            </td>
             <td><a title="{{ hit.agent }}">{{ hit.agent[:20] if hit.agent }}</a></td>
          </tr>
          {% endfor %}
