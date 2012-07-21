@@ -31,13 +31,16 @@ def args2qs(args):
          r += '&%s=%s' % (urllib.quote_plus(key), urllib.quote_plus(val))
    return '?' + r[1:]
 
+
 @app.route("/")
 def main():
    return ""
 
+
 @app.route("/<shortcode>", methods = ["GET"])
 def forward(shortcode):
    return forward_full(shortcode, None)
+
 
 @app.route("/<shortcode>/<path:path>", methods = ["GET"])
 def forward_full(shortcode, path):
@@ -185,9 +188,11 @@ def stats(shortcode):
 
    return flask.render_template("stats.html", p=params)
 
+
 @app.route("/new", methods = ["GET"])
 def new():
    return flask.render_template("index.html", short_url=None, base=BASE_URL)
+
 
 @app.route("/new_paste", methods = ["POST"])
 def new_paste():
@@ -207,6 +212,7 @@ def new_paste():
    short_url = surl.get_short_url()
 
    return "%s\n" % short_url
+
 
 if __name__ == '__main__':
    app.run(debug=True, host='0.0.0.0', threaded=True)
