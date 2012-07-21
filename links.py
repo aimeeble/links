@@ -89,14 +89,27 @@ def _isbot(refer, agent):
    '''
    agent_list = [
          "Twitterbot/1.0",
-         "InAGist URL Resolver (http://inagist.com)",
          "UnwindFetchor/1.0 (+http://www.gnip.com/)",
          "Mozilla/5.0 (compatible; TweetmemeBot/2.11; +http://tweetmeme.com/)",
          "Mozilla/5.0 (compatible; Butterfly/1.0; +http://labs.topsy.com/butterfly/) Gecko/2009032608 Firefox/3.0.8",
          "Mozilla/5.0 (compatible; PaperLiBot/2.1; http://support.paper.li/entries/20023257-what-is-paper-li)",
          "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
          "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2) Gecko/20100115 Firefox/3.6 (FlipboardProxy/1.1; +http://flipboard.com/browserproxy)",
+         "Mozilla/5.0 (compatible; TweetmemeBot/2.11; +http://tweetmeme.com/)",
+         "InAGist URL Resolver (http://inagist.com)",
          "TwitJobSearch.com",
+         "Twisted PageGetter",
+         "Python-urllib/2.5",
+         "Python-urllib/2.6",
+         "python-requests/0.9.2",
+         "PycURL/7.19.5",
+         "MFE_expand/0.1",
+         "NING/1.0",
+         "MetaURI API/2.0 +metauri.com",
+         "Voyager/1.0",
+         "JS-Kit URL Resolver, http://js-kit.com/",
+         "ScooperBot www.customscoop.com",
+         "Twitmunin Crawler http://www.twitmunin.com",
       ]
 
    if agent in agent_list:
