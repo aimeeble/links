@@ -23,6 +23,8 @@ app.register_blueprint(linkapi.v1, url_prefix='/api/v1')
 app.register_blueprint(linkapi.twitpic, url_prefix='/api/twitpic')
 
 def args2qs(args):
+   if not args:
+      return None
    r = ''
    for key,vals in args.iterlists():
       for val in vals:
