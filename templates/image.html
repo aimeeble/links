@@ -1,0 +1,17 @@
+<html>
+   <head>
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+   </head>
+
+   <body class="image" background="{{ url_for('static', filename='bg.jpg') }}">
+      <div id="img_wrapper">
+         <div id="img_header">
+            <span>{{ data.img_filename }}</span>
+         </div>
+
+         <div id="img_container">
+            <a href="{{ data.img_url }}"><img src="{{ data.img_url }}" /></a>
+         </div>
+      </div>
+   </body>
+</html>
