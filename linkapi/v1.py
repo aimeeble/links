@@ -1,10 +1,11 @@
 import flask
-from util import jsonify
+
 from common import apis
 from linklib.url import ShortURL
 from linklib.db import ShortDB
 from linklib.db import ShortInvalidException
 from linklib.util import UploadedFile
+from util import jsonify
 
 # POST /shrink
 #     -> url=full_url
@@ -18,22 +19,28 @@ from linklib.util import UploadedFile
 #     <- {"url": full_url, "short_code": short_code, "short_url": short_url}
 # GET  /stats/CODE
 #     -> nil
-#     <- {"referrers": [...], "browsers": [...], "client_ips": [...], "times": [...]}
+#     <- {
+#           "referrers": [...],
+#           "browsers": [...],
+#           "client_ips": [...],
+#           "times": [...],
+#        }
 # GET  /dump
 #     -> nil
 #     <- [/v1/expand/*]
 
 api = flask.Blueprint('v1', __name__)
 
-@api.route("/shrink", methods = ["POST"])
+
+@api.route("/shrink", methods=["POST"])
 @jsonify
 def shrink():
    sdb = apis.get_sdb()
    if "url" not in flask.request.form:
       return {
-            "status": "FAIL",
-            "text": "No URL param",
-         }
+         "status": "FAIL",
+         "text": "No URL param",
+      }
 
    full_url = flask.request.form["url"]
    surl = sdb.new(full_url)
@@ -42,13 +49,14 @@ def shrink():
    sdb.save(surl)
 
    return {
-         "status": "OK",
-         "url": full_url,
-         "short_code": surl.get_short_code(),
-         "short_url": surl.get_short_url(),
-      }
+      "status": "OK",
+      "url": full_url,
+      "short_code": surl.get_short_code(),
+      "short_url": surl.get_short_url(),
+   }
 
-@api.route("/post", methods = ["POST"])
+
+@api.route("/post", methods=["POST"])
 @jsonify
 def post():
    sdb = apis.get_sdb()
@@ -91,13 +99,14 @@ def post():
       raise Exception("missing required field")
 
    return {
-         "status": "OK",
-         "url": full_url,
-         "short_code": surl.get_short_code(),
-         "short_url": surl.get_short_url(),
-      }
+      "status": "OK",
+      "url": full_url,
+      "short_code": surl.get_short_code(),
+      "short_url": surl.get_short_url(),
+   }
 
-@api.route("/expand/<short_code>", methods = ["GET"])
+
+@api.route("/expand/<short_code>", methods=["GET"])
 @jsonify
 def expand(short_code):
    sdb = apis.get_sdb()
@@ -107,18 +116,19 @@ def expand(short_code):
       surl = sdb.load(short_code)
    except ShortInvalidException, e:
       return {
-            "status": "FAIL",
-            "text": "Invalid short code",
-         }
-
-   return {
-         "status": "OK",
-         "url": surl.get_long_url(),
-         "short_code": surl.get_short_code(),
-         "short_url": surl.get_short_url(),
+         "status": "FAIL",
+         "text": "Invalid short code",
       }
 
-@api.route("/stats/<short_code>", methods = ["GET"])
+   return {
+      "status": "OK",
+      "url": surl.get_long_url(),
+      "short_code": surl.get_short_code(),
+      "short_url": surl.get_short_url(),
+   }
+
+
+@api.route("/stats/<short_code>", methods=["GET"])
 @jsonify
 def stats(short_code):
    sdb = apis.get_sdb()
@@ -127,9 +137,9 @@ def stats(short_code):
       surl = sdb.load(short_code)
    except ShortInvalidException, e:
       return {
-            "status": "FAIL",
-            "text": "Invalid short code",
-         }
+         "status": "FAIL",
+         "text": "Invalid short code",
+      }
 
    hits = sdb.list_hits(short_code)
    hit_list = []
@@ -137,14 +147,15 @@ def stats(short_code):
       hit_list.extend([hit])
 
    return {
-         "status": "OK",
-         "url": surl.get_long_url(),
-         "short_code": surl.get_short_code(),
-         "short_url": surl.get_short_url(),
-         "hit_list": hit_list,
-      }
+      "status": "OK",
+      "url": surl.get_long_url(),
+      "short_code": surl.get_short_code(),
+      "short_url": surl.get_short_url(),
+      "hit_list": hit_list,
+   }
 
-@api.route("/dump", methods = ["GET"])
+
+@api.route("/dump", methods=["GET"])
 @jsonify
 def dump():
    sdb = apis.get_sdb()
@@ -153,14 +164,13 @@ def dump():
    for short_code in sdb:
       surl = sdb.load(short_code)
       surl_dict = {
-            "url": surl.get_long_url(),
-            "short_code": surl.get_short_code(),
-            "short_url": surl.get_short_url(),
-         }
+         "url": surl.get_long_url(),
+         "short_code": surl.get_short_code(),
+         "short_url": surl.get_short_url(),
+      }
       res.append(surl_dict)
 
    return {
-         "status": "OK",
-         "result": res,
-      }
-
+      "status": "OK",
+      "result": res,
+   }

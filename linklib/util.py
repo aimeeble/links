@@ -1,10 +1,9 @@
-import uuid
-import os
-import errno
-import urllib2
 import bs4
+import errno
 import hashlib
-
+import os
+import urllib2
+import uuid
 
 
 class UploadedFile(object):
@@ -19,7 +18,8 @@ class UploadedFile(object):
    subsequent upload.
 
    '''
-   def __init__(self, req, formfile=None, stream=None, mimetype=None, filename=None):
+   def __init__(self, req, formfile=None, stream=None, mimetype=None,
+                filename=None):
       self.real_filename = None
       self.link_filename = None
 
@@ -105,6 +105,7 @@ class UploadedFile(object):
 class HeadRequest(urllib2.Request):
    def get_method(self):
       return "HEAD"
+
 
 def get_page_info(url):
    info = {}

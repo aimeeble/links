@@ -4,7 +4,9 @@ import pymongo
 import base64
 from linklib.util import get_page_info
 
+
 ShortInvalidException = Exception
+
 
 class ShortDBBase(object):
    def __init__(self, prefix):
@@ -77,9 +79,12 @@ class ShortDBBase(object):
       class _foo:
          def __iter__(self):
             return self
+
          def next(self):
             raise StopIteration()
+
       return _foo()
+
 
 class ShortDB(ShortDBBase):
    def __init__(self, prefix, *args, **kwargs):
@@ -120,6 +125,7 @@ class ShortDB(ShortDBBase):
       if short_code not in self.stats:
          return super(ShortDB, self).list_hits(short_code)
       return self.stats[short_code]
+
 
 class ShortDBMongo(ShortDBBase):
    def __init__(self, prefix, *args, **kwargs):
@@ -169,31 +175,36 @@ class ShortDBMongo(ShortDBBase):
    def __iter__(self):
       class _generator:
          def __init__(self, db):
-            self.cur = db.urls.find({}, {"short_code": 1}).sort("latest_short",pymongo.DESCENDING)
+            self.cur = db.urls.find({}, {"short_code": 1}).sort(
+                  "latest_short", pymongo.DESCENDING)
             print "Generating over %d rows" % self.cur.count()
+
          def next(self):
             row = self.cur.next()
             return row["short_code"]
+
       return _generator(self.db)
 
    def record_hit(self, short_code, stats):
       """Records someone following the short-url.
       """
       to_add = {
-            "short_code": short_code,
-            "stats": stats,
-         }
+         "short_code": short_code,
+         "stats": stats,
+      }
       self.db.hits.insert(to_add)
 
    def list_hits(self, short_code):
       class _gen:
          def __init__(self, cursor):
             self.cursor = cursor
+
          def __iter__(self):
             return self
+
          def next(self):
             row = self.cursor.next()
             return row["stats"]
+
       cur = self.db.hits.find({"short_code": short_code}, {"stats": 1})
       return _gen(cur)
-

@@ -49,13 +49,13 @@ class ShortURL(object):
 
    def serialize(self):
       return {
-            "short_code": self.short_code,
-            "long_url": self.long_url,
-            "link_type": self.link_type,
-            "mime_type": self.mime_type,
-            "info": self.info,
-            "latest_short": time.time()
-         }
+         "short_code": self.short_code,
+         "long_url": self.long_url,
+         "link_type": self.link_type,
+         "mime_type": self.mime_type,
+         "info": self.info,
+         "latest_short": time.time()
+      }
 
    def deserialize(self, data):
       self.short_code = data.get("short_code")

@@ -1,4 +1,5 @@
 
+
 class ApiCommon(object):
    def __init__(self):
       self.sdb = None
@@ -8,5 +9,6 @@ class ApiCommon(object):
 
    def get_sdb(self):
       return self.sdb
+
 
 apis = ApiCommon()

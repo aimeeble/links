@@ -36,11 +36,11 @@ def _post(filename):
       url = "%sapi/v1/post" % sdb.prefix
 
       data = {
-            "file": {
-               "fd": fh,
-               "filename": "%s" % os.path.basename(filename),
-            },
-         }
+         "file": {
+            "fd": fh,
+            "filename": "%s" % os.path.basename(filename),
+         },
+      }
 
       req = urllib2.Request(url, data)
       con = urllib2.urlopen(req)
@@ -53,7 +53,7 @@ def _post(filename):
       return body
 
 
-@api.route("/shorten", methods = ["GET"])
+@api.route("/shorten", methods=["GET"])
 @jsonify
 def shorten():
    sdb = apis.get_sdb()
@@ -71,12 +71,12 @@ def shorten():
    return {"shorturl": surl.get_short_url()}
 
 
-@api.route("/upload", methods = ["POST"])
+@api.route("/upload", methods=["POST"])
 def upload():
    return upload_fmt('json')
 
 
-@api.route("/upload.<fmt>", methods = ["POST"])
+@api.route("/upload.<fmt>", methods=["POST"])
 @jsonify
 def upload_fmt(fmt):
    form = flask.request.form
@@ -99,9 +99,9 @@ def upload_fmt(fmt):
    # Verify
    if skip_auth:
       twit_info = {
-            "screen_name": "unknown",
-            "id": "unknown",
-         }
+         "screen_name": "unknown",
+         "id": "unknown",
+      }
    else:
       if "X-Auth-Service-Provider" not in headers:
          raise Exception("OAuth service provider missing")
@@ -110,7 +110,7 @@ def upload_fmt(fmt):
          raise Exception("OAuth creds missing")
 
       twit_info = _verify_oauth(headers["X-Auth-Service-Provider"],
-                              headers["X-Verify-Credentials-Authorization" ])
+                                headers["X-Verify-Credentials-Authorization"])
       if not twit_info:
          raise Exception("failed oauth echo")
 
@@ -141,16 +141,15 @@ def upload_fmt(fmt):
          print "failed to unlink: %s" % (str(e))
 
    result = {
-         "id": res["short_code"],
-         "text": form["message"],
-         "url": res["short_url"],
-         "type": mime_type,
-         "timestamp": "Wed, 05 May 2010 16:11:48 +0000",
-         "user": {
-            "id": twit_info["id"],
-            "screen_name": twit_info["screen_name"],
-         },
-      }
+      "id": res["short_code"],
+      "text": form["message"],
+      "url": res["short_url"],
+      "type": mime_type,
+      "timestamp": "Wed, 05 May 2010 16:11:48 +0000",
+      "user": {
+         "id": twit_info["id"],
+         "screen_name": twit_info["screen_name"],
+      },
+   }
 
    return result
-

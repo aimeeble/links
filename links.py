@@ -1,21 +1,23 @@
-import flask
-import werkzeug
 import os
 import errno
 import uuid
-from linklib.url import ShortURL
+import time
+import urllib
+import tempfile
+
+import flask
+import werkzeug
+import pygeoip
+
+import linkapi
 from linklib.db import ShortDB
 from linklib.db import ShortDBMongo
 from linklib.db import ShortInvalidException
-import linkapi
-import time
-import pygeoip
-import urllib
-import tempfile
+from linklib.url import ShortURL
 from linklib.util import UploadedFile
 
 
-BASE_URL="http://localhost:5000/"
+BASE_URL = "http://localhost:5000/"
 
 app = flask.Flask(__name__)
 sdb = ShortDBMongo(BASE_URL, host="localhost", db="links")
@@ -24,11 +26,12 @@ linkapi.apis.set_sdb(sdb)
 app.register_blueprint(linkapi.v1, url_prefix='/api/v1')
 app.register_blueprint(linkapi.twitpic, url_prefix='/api/twitpic')
 
+
 def args2qs(args):
    if not args:
       return None
    r = ''
-   for key,vals in args.iterlists():
+   for key, vals in args.iterlists():
       for val in vals:
          r += '&%s=%s' % (urllib.quote_plus(key), urllib.quote_plus(val))
    return '?' + r[1:]
@@ -39,12 +42,12 @@ def main():
    return ""
 
 
-@app.route("/<shortcode>", methods = ["GET"])
+@app.route("/<shortcode>", methods=["GET"])
 def forward(shortcode):
    return forward_full(shortcode, None)
 
 
-@app.route("/<shortcode>/<path:path>", methods = ["GET"])
+@app.route("/<shortcode>/<path:path>", methods=["GET"])
 def forward_full(shortcode, path):
    # Look up code
    try:
@@ -58,14 +61,14 @@ def forward_full(shortcode, path):
    if "referer" in flask.request.headers:
       referrer = flask.request.headers["referer"]
    hit_data = {
-            "remote_addr": flask.request.remote_addr,
-            "referrer": referrer,
-            "time": time.time(),
-            "agent": flask.request.headers.get("user-agent"),
-            "method": flask.request.method,
-            "qs": args2qs(flask.request.args),
-            "path": path,
-         }
+      "remote_addr": flask.request.remote_addr,
+      "referrer": referrer,
+      "time": time.time(),
+      "agent": flask.request.headers.get("user-agent"),
+      "method": flask.request.method,
+      "qs": args2qs(flask.request.args),
+      "path": path,
+   }
    sdb.record_hit(surl.get_short_code(), hit_data)
 
    # Redirect
@@ -95,29 +98,33 @@ def _isbot(refer, agent):
    '''Try and guess if this represents a bot or not
    '''
    agent_list = [
-         "Twitterbot/1.0",
-         "UnwindFetchor/1.0 (+http://www.gnip.com/)",
-         "Mozilla/5.0 (compatible; TweetmemeBot/2.11; +http://tweetmeme.com/)",
-         "Mozilla/5.0 (compatible; Butterfly/1.0; +http://labs.topsy.com/butterfly/) Gecko/2009032608 Firefox/3.0.8",
-         "Mozilla/5.0 (compatible; PaperLiBot/2.1; http://support.paper.li/entries/20023257-what-is-paper-li)",
-         "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
-         "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2) Gecko/20100115 Firefox/3.6 (FlipboardProxy/1.1; +http://flipboard.com/browserproxy)",
-         "Mozilla/5.0 (compatible; TweetmemeBot/2.11; +http://tweetmeme.com/)",
-         "InAGist URL Resolver (http://inagist.com)",
-         "TwitJobSearch.com",
-         "Twisted PageGetter",
-         "Python-urllib/2.5",
-         "Python-urllib/2.6",
-         "python-requests/0.9.2",
-         "PycURL/7.19.5",
-         "MFE_expand/0.1",
-         "NING/1.0",
-         "MetaURI API/2.0 +metauri.com",
-         "Voyager/1.0",
-         "JS-Kit URL Resolver, http://js-kit.com/",
-         "ScooperBot www.customscoop.com",
-         "Twitmunin Crawler http://www.twitmunin.com",
-      ]
+      "Twitterbot/1.0",
+      "UnwindFetchor/1.0 (+http://www.gnip.com/)",
+      "Mozilla/5.0 (compatible; TweetmemeBot/2.11; +http://tweetmeme.com/)",
+      "Mozilla/5.0 (compatible; Butterfly/1.0; +http://labs.topsy.com/butt" +
+            "erfly/) Gecko/2009032608 Firefox/3.0.8",
+      "Mozilla/5.0 (compatible; PaperLiBot/2.1; http://support.paper.li/en" +
+            "tries/20023257-what-is-paper-li)",
+      "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2) Ge" +
+            "cko/20100115 Firefox/3.6 (FlipboardProxy/1.1; +http://flipboa" +
+            "rd.com/browserproxy)",
+      "Mozilla/5.0 (compatible; TweetmemeBot/2.11; +http://tweetmeme.com/)",
+      "InAGist URL Resolver (http://inagist.com)",
+      "TwitJobSearch.com",
+      "Twisted PageGetter",
+      "Python-urllib/2.5",
+      "Python-urllib/2.6",
+      "python-requests/0.9.2",
+      "PycURL/7.19.5",
+      "MFE_expand/0.1",
+      "NING/1.0",
+      "MetaURI API/2.0 +metauri.com",
+      "Voyager/1.0",
+      "JS-Kit URL Resolver, http://js-kit.com/",
+      "ScooperBot www.customscoop.com",
+      "Twitmunin Crawler http://www.twitmunin.com",
+   ]
 
    if agent in agent_list:
       return True
@@ -125,7 +132,7 @@ def _isbot(refer, agent):
    return False
 
 
-@app.route("/<shortcode>+", methods = ["GET"])
+@app.route("/<shortcode>+", methods=["GET"])
 def stats(shortcode):
    try:
       surl = sdb.load(shortcode)
@@ -144,18 +151,18 @@ def stats(shortcode):
    meta = info.get("meta") if info else None
 
    params = {
-         "title": info.get("title") if info else "Unknown",
-         "description": meta.get("description") if meta else "None",
-         "contentlength": info.get("length", "???") if info else "???",
-         "link_type": LINK_TYPES[surl.get_link_type()],
-         "mime_type": surl.get_mime_type(),
-         "short_url": surl.get_short_url(),
-         "long_url": surl.get_long_url(),
-         "short_code": surl.get_short_code(),
-         "referrers": {}, # {ref->count}
-         "locations": {}, # {IP->count}
-         "hits": [],
-      }
+      "title": info.get("title") if info else "Unknown",
+      "description": meta.get("description") if meta else "None",
+      "contentlength": info.get("length", "???") if info else "???",
+      "link_type": LINK_TYPES[surl.get_link_type()],
+      "mime_type": surl.get_mime_type(),
+      "short_url": surl.get_short_url(),
+      "long_url": surl.get_long_url(),
+      "short_code": surl.get_short_code(),
+      "referrers": {},  # {ref->count}
+      "locations": {},  # {IP->count}
+      "hits": [],
+   }
 
    # collect the stats
    itr = sdb.list_hits(surl.get_short_code())
@@ -178,7 +185,8 @@ def stats(shortcode):
       old = params["locations"][ip]
       params["locations"][ip] = (old[0], old[1] + 1)
 
-      hit["time"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(hit["time"]))
+      hit["time"] = time.strftime("%Y-%m-%d %H:%M:%S",
+                                  time.localtime(hit["time"]))
 
       cc = geo.country_code_by_addr(hit["remote_addr"])
       hit["cc"] = cc if cc else "??"
@@ -191,12 +199,12 @@ def stats(shortcode):
    return flask.render_template("stats.html", p=params)
 
 
-@app.route("/new", methods = ["GET"])
+@app.route("/new", methods=["GET"])
 def new():
    return flask.render_template("index.html", short_url=None, base=BASE_URL)
 
 
-@app.route("/new_paste", methods = ["POST"])
+@app.route("/new_paste", methods=["POST"])
 def new_paste():
    if "p" not in flask.request.form:
       return flask.make_response("Bad Request", 400)
@@ -207,7 +215,9 @@ def new_paste():
       tmp_fh.write(text)
       tmp_fh.seek(0)
 
-      uploaded_file = UploadedFile(flask.request, stream=tmp_fh, filename='stdin')
+      uploaded_file = UploadedFile(flask.request,
+                                   stream=tmp_fh,
+                                   filename='stdin')
       uploaded_file.save()
 
       fullpath = uploaded_file.get_filename()
