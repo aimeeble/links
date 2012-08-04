@@ -79,6 +79,12 @@ def forward_full(shortcode, path):
             dest_url = surl.get_long_url()
         return flask.make_response("Moved", 302, {"Location": dest_url})
     elif surl.is_img():
+        data = {
+            "img_filename": surl.get_info().get("title"),
+            "img_url": surl.get_long_url(),
+        }
+        return flask.render_template("image.html", data=data)
+
         return flask.send_file(surl.get_long_url(),
                                mimetype=surl.get_mime_type(),
                                add_etags=False)
