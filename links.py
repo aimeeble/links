@@ -7,11 +7,13 @@ from linklib.url import ShortURL
 from linklib.db import ShortDB
 from linklib.db import ShortDBMongo
 from linklib.db import ShortInvalidException
-from linklib.util import Util
 import linkapi
 import time
 import pygeoip
 import urllib
+import tempfile
+from linklib.util import UploadedFile
+
 
 BASE_URL="http://localhost:5000/"
 
@@ -200,9 +202,15 @@ def new_paste():
       return flask.make_response("Bad Request", 400)
 
    text = flask.request.form["p"]
-   fullpath = Util.get_savable_filename(flask.request)
-   with open(fullpath, "w+") as f:
-      f.write(text)
+
+   with tempfile.TemporaryFile() as tmp_fh:
+      tmp_fh.write(text)
+      tmp_fh.seek(0)
+
+      uploaded_file = UploadedFile(flask.request, stream=tmp_fh, filename='stdin')
+      uploaded_file.save()
+
+      fullpath = uploaded_file.get_filename()
 
    surl = sdb.new(fullpath)
    surl.link_type = ShortURL.TEXT

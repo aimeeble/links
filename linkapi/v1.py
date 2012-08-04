@@ -4,7 +4,7 @@ from common import apis
 from linklib.url import ShortURL
 from linklib.db import ShortDB
 from linklib.db import ShortInvalidException
-from linklib.util import Util
+from linklib.util import UploadedFile
 
 # POST /shrink
 #     -> url=full_url
@@ -55,28 +55,30 @@ def post():
    surl = None
 
    if "file" in flask.request.files:
-      f = flask.request.files["file"]
-      rel_path = Util.get_savable_filename(flask.request)
-      f.save(rel_path)
+      uploaded_file = UploadedFile(flask.request, formfile='file')
+      uploaded_file.save()
 
-      full_url = rel_path
+      full_url = uploaded_file.get_filename()
 
       surl = sdb.new(full_url)
       surl.link_type = ShortURL.IMG
-      surl.mime_type = f.mimetype
+      surl.mime_type = uploaded_file.get_mimetype()
       if not surl.info:
          surl.info = {}
-      surl.info["title"] = f.filename
+      surl.info["title"] = uploaded_file.get_remote_filename()
       sdb.save(surl)
 
    elif "d" in flask.request.form:
       text = flask.request.form["d"]
-      rel_path = Util.get_savable_filename(flask.request)
 
-      full_url = rel_path
+      with tempfile.TemporaryFile() as tmp_fh:
+         tmp_fh.write(text)
+         tmp_fh.seek(0)
 
-      with open(rel_path, "w+") as f:
-         f.write(text)
+         uploaded_file = UploadedFile(flask.request, stream=tmp_fh)
+         uploaded_file.save()
+
+         full_url = uploaded_file.get_filename()
 
       surl = sdb.new(full_url)
       surl.link_type = ShortURL.TEXT
