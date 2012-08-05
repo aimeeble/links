@@ -192,7 +192,12 @@ class ShortDBMongo(ShortDBBase):
             "short_code": short_code,
             "stats": stats,
         }
-        self.db.hits.insert(to_add)
+        return self.db.hits.insert(to_add)
+
+    def update_hit(self, short_code, hit_code, stats):
+        """Merges stats into existing stats, overwriting as necessary.
+        """
+        pass
 
     def list_hits(self, short_code):
         class _gen:
