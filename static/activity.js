@@ -3,16 +3,16 @@ function report_activity(hit_code) {
         "url": "/api/v1/activity",
         "type": "POST",
         "dataType": "json",
-        "data": {"activity": true},
+        "data": {
+            "hit_code": hit_code,
+            "type": "mouse",
+        },
 
         "success": function(data) {
-            alert("success");
         },
         "failure": function() {
-            alert("failure");
         },
         "error": function(xhr, textStatus, err) {
-            alert("error: " + err);
         }
     })
 }
