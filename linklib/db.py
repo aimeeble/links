@@ -214,7 +214,6 @@ class ShortDBMongo(ShortDBBase):
                 to_update,
                 upsert=False,
                 multi=False)
-        print "result = %s" % res
 
     def list_hits(self, short_code):
         class _gen:
