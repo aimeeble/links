@@ -209,7 +209,6 @@ class ShortDBMongo(ShortDBBase):
             to_update["$set"]["stats.%s" % key] = val
 
         objid = ObjectId(hit_code)
-        print "updating hit_code: %s = %s" % (hit_code, to_update)
         res = self.db.hits.update(
                 {"_id": objid},
                 to_update,
