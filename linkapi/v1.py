@@ -41,12 +41,20 @@ def shrink():
             "status": "FAIL",
             "text": "No URL param",
         }
-
     full_url = flask.request.form["url"]
-    surl = sdb.new(full_url)
-    surl.link_type = ShortURL.REDIR
-    surl.mime_type = surl.info["mimetype"] if surl.info else None
-    sdb.save(surl)
+
+    if full_url.startswith(sdb.prefix):
+        # Trying to re-shorting a short URL.
+        code = full_url[len(sdb.prefix):]
+        surl = sdb.load(code)
+        # Re-save to update timestamps on surl
+        sdb.save(surl)
+    else:
+        # Trying to shorten a new URL.
+        surl = sdb.new(full_url)
+        surl.link_type = ShortURL.REDIR
+        surl.mime_type = surl.info["mimetype"] if surl.info else None
+        sdb.save(surl)
 
     return {
         "status": "OK",
