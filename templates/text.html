@@ -1,15 +1,15 @@
 <html>
    <head>
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+      <script src="{{ url_for('static', filename='activity.js') }}"></script>
       <script src="{{ url_for('static', filename='rainbow-custom.min.js') }}"></script>
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
       <!--<link rel="stylesheet" href="{{ url_for('static', filename='all-hallows-eve.css') }}" />-->
       <link rel="stylesheet" href="{{ url_for('static', filename='blackboard.css') }}" />
-      <style>
-         body { margin: 0 0 0 0; }
-      </style>
    </head>
 
    <body>
-      <pre><code{{ language|safe }}>{{ content }}</code></pre>
+      <span id="hit_code">{{ data.hit_code }}</span>
+      <pre><code{{ data.lang|safe }}>{{ data.text }}</code></pre>
    </body>
 </html>

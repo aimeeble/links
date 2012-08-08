@@ -1,7 +1,10 @@
-from url import ShortURL
-import hashlib
-import pymongo
 import base64
+import hashlib
+
+from bson.objectid import ObjectId
+import pymongo
+
+from url import ShortURL
 from linklib.util import get_page_info
 
 
@@ -192,7 +195,25 @@ class ShortDBMongo(ShortDBBase):
             "short_code": short_code,
             "stats": stats,
         }
-        self.db.hits.insert(to_add)
+        return self.db.hits.insert(to_add)
+
+    def update_hit(self, hit_code, stats):
+        """Merges stats into existing stats, overwriting as necessary.
+        """
+
+        # Mongo-ize the stats dict to set the provided fields.
+        to_update = {
+            "$set": {},
+        }
+        for key, val in stats.iteritems():
+            to_update["$set"]["stats.%s" % key] = val
+
+        objid = ObjectId(hit_code)
+        res = self.db.hits.update(
+                {"_id": objid},
+                to_update,
+                upsert=False,
+                multi=False)
 
     def list_hits(self, short_code):
         class _gen:

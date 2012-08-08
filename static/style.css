@@ -1,5 +1,9 @@
-body.image {
+body {
     margin: 0;
+}
+
+#hit_code {
+    display: none;
 }
 
 #img_header {

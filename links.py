@@ -69,7 +69,8 @@ def forward_full(shortcode, path):
         "qs": args2qs(flask.request.args),
         "path": path,
     }
-    sdb.record_hit(surl.get_short_code(), hit_data)
+    hit_id = sdb.record_hit(surl.get_short_code(), hit_data)
+    hit_code = str(hit_id)
 
     # Redirect
     if surl.is_redir():
@@ -82,6 +83,7 @@ def forward_full(shortcode, path):
         data = {
             "img_filename": surl.get_info().get("title"),
             "img_url": surl.get_long_url(),
+            "hit_code": hit_code,
         }
         return flask.render_template("image.html", data=data)
 
@@ -90,12 +92,15 @@ def forward_full(shortcode, path):
                                add_etags=False)
     elif surl.is_text():
         lang = ""
-        print flask.request.args
         if "lang" in flask.request.args:
             lang = " data-language=\"%s\"" % flask.request.args["lang"]
         with open(surl.get_long_url(), "r") as f:
-            s = f.read()
-            return flask.render_template("text.html", content=s, language=lang)
+            data = {
+                "text": f.read(),
+                "lang": lang,
+                "hit_code": hit_code,
+            }
+            return flask.render_template("text.html", data=data)
     else:
         return flask.make_response("invalid type", 500)
 

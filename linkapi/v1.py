@@ -1,3 +1,5 @@
+import time
+
 import flask
 
 from common import apis
@@ -181,4 +183,41 @@ def dump():
     return {
         "status": "OK",
         "result": res,
+    }
+
+
+@api.route("/activity", methods=["POST"])
+@jsonify
+def activity():
+    if "hit_code" not in flask.request.form:
+        return {
+            "status": "FAIL",
+            "text": "Invalid hit code",
+        }
+    if "type" not in flask.request.form:
+        return {
+            "status": "FAIL",
+            "text": "Missing activity type",
+        }
+
+    hit_code = flask.request.form["hit_code"]
+    act_type = flask.request.form["type"]
+    stats = {
+        "activity": {
+            "type": act_type,
+            "time": time.time(),
+        },
+    }
+
+    sdb = apis.get_sdb()
+    try:
+        sdb.update_hit(hit_code, stats)
+    except Exception, e:
+        return {
+            "status": "FAIL",
+            "text": "%s" % (str(e)),
+        }
+
+    return {
+        "status": "OK",
     }
