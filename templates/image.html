@@ -1,9 +1,13 @@
 <html>
    <head>
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+      <script src="{{ url_for('static', filename='activity.js') }}"></script>
       <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
    </head>
 
    <body class="image" background="{{ url_for('static', filename='bg.jpg') }}">
+      <span id="hit_code">{{ data.hit_code }}</span>
+
       <div id="img_wrapper">
          <div id="img_header">
             <span>{{ data.img_filename }}</span>
