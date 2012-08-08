@@ -108,6 +108,7 @@
             <th>IP</th>
             <th>CC</th>
             <th>Agent</th>
+            <th>Act</th>
          </tr>
          {% for hit in p.hits %}
          {% if hit.bot %}
@@ -124,6 +125,9 @@
                <span>{{ hit.area.city }}, {{ hit.area.region_name }}</span>
             </td>
             <td><a title="{{ hit.agent }}">{{ hit.agent[:20] if hit.agent }}</a></td>
+            <td>
+               {% if hit.activity %}✔{% endif %}
+            </td>
          </tr>
          {% endfor %}
       </table>
