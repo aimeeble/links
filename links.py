@@ -163,6 +163,7 @@ def stats(shortcode):
 
     info = surl.get_info()
     meta = info.get("meta") if info else None
+    social = info.get("social", []) if info else []
 
     params = {
         "title": info.get("title") if info else "Unknown",
@@ -176,6 +177,7 @@ def stats(shortcode):
         "referrers": {},  # {ref->count}
         "locations": {},  # {IP->count}
         "hits": [],
+        "social": social,
     }
 
     # collect the stats
