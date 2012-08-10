@@ -69,4 +69,4 @@ class ShortURL(object):
         self.mime_type = data.get("mime_type")
         self.info = data.get("info")
         self.latest_short = data.get("latest_short")
-        self.socail = data.get("social")
+        self.social = data.get("social")
