@@ -163,7 +163,7 @@ def stats(shortcode):
 
     info = surl.get_info()
     meta = info.get("meta") if info else None
-    social = info.get("social", []) if info else []
+    social = surl.get_social()
 
     params = {
         "title": info.get("title") if info else "Unknown",
