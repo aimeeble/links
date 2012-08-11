@@ -1,0 +1,35 @@
+.url_info_box {
+    border: 1px solid #000;
+}
+
+.url_info_box img {
+    float: right;
+}
+
+.url_info_box th {
+    background: #AAA;
+}
+
+.url_info_box td {
+    border-top: 1px solid #000;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+#basic_info {
+    width: 48%;
+}
+
+#social {
+    float: right;
+    width: 48%;
+}
+
+#refer_sites {
+    float: right;
+    width: 48%;
+}
+
+#refer_locations {
+    width: 48%;
+}
