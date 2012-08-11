@@ -228,7 +228,7 @@ def stats(shortcode):
         params["hits"] += [hit]
 
     # Process social
-    for post in params["social"]:
+    for post in params.get("social", {}).get('posts', []):
         post["when"] = time.strftime("%Y-%m-%d %H:%M:%S",
                                   time.localtime(post["when"]))
         # Linkify URLs
