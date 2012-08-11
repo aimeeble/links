@@ -51,14 +51,18 @@ class ShortURL(object):
     def __str__(self):
         return "(URL %s = %s)" % (self.short_code, self.long_url)
 
-    def serialize(self):
+    def serialize(self, update_time=True):
+        new_time = self.latest_short
+        if update_time:
+            new_time = time.time()
+
         return {
             "short_code": self.short_code,
             "long_url": self.long_url,
             "link_type": self.link_type,
             "mime_type": self.mime_type,
             "info": self.info,
-            "latest_short": time.time(),
+            "latest_short": new_time,
             "social": self.social,
         }
 
@@ -69,4 +73,4 @@ class ShortURL(object):
         self.mime_type = data.get("mime_type")
         self.info = data.get("info")
         self.latest_short = data.get("latest_short")
-        self.social = data.get("social")
+        self.social = data.get("social", [])

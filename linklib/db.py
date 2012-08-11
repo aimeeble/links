@@ -155,12 +155,12 @@ class ShortDBMongo(ShortDBBase):
         print "invalid: %s" % hash_code
         return False
 
-    def save(self, surl):
+    def save(self, surl, update_time=True):
         self.db.urls.update(
             {
                 "short_code": surl.get_short_code(),
             },
-            surl.serialize(),
+            surl.serialize(update_time),
             True)
 
     def load(self, short_code):
