@@ -1,6 +1,7 @@
 import os
 import errno
 import uuid
+import re
 import time
 import urllib
 import tempfile
@@ -146,6 +147,20 @@ def _isbot(hit):
     return res
 
 
+def _linkify_hashtags_twitter(text):
+    base = 'http://twitter.com/#!/search/?src=hash&q=%23'
+    return re.sub(r'#([^\s]+)', r'<a href="%s\1">#\1</a>' % base, text)
+
+
+def _linkify_users_twitter(text):
+    base = 'http://twitter.com/'
+    return re.sub(r'@(\w+)', r'<a href="%s\1">@\1</a>' % base, text)
+
+
+def _linkify_links(text):
+    return re.sub(r'(https?://[^\s]+)', r'<a href="\1">\1</a>', text)
+
+
 @app.route("/<shortcode>+", methods=["GET"])
 def stats(shortcode):
     try:
@@ -214,9 +229,14 @@ def stats(shortcode):
 
     # Process social
     for post in params["social"]:
-        print post
         post["when"] = time.strftime("%Y-%m-%d %H:%M:%S",
                                   time.localtime(post["when"]))
+        # Linkify URLs
+        post['text'] = _linkify_links(post['text'])
+        # Linkify twitter stuff
+        if post['source'] == 'twitter':
+            post['text'] = _linkify_hashtags_twitter(post['text'])
+            post['text'] = _linkify_users_twitter(post['text'])
 
     return flask.render_template("stats.html", p=params)
 
