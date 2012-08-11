@@ -149,16 +149,16 @@ def _isbot(hit):
 
 def _linkify_hashtags_twitter(text):
     base = 'http://twitter.com/#!/search/?src=hash&q=%23'
-    return re.sub(r'#([^\s]+)', r'<a href="%s\1">#\1</a>' % base, text)
+    return re.sub(r'#([\w_]+)', r'<a href="%s\1">#\1</a>' % base, text)
 
 
 def _linkify_users_twitter(text):
     base = 'http://twitter.com/'
-    return re.sub(r'@(\w+)', r'<a href="%s\1">@\1</a>' % base, text)
+    return re.sub(r'@(\w{1,15})', r'<a href="%s\1">@\1</a>' % base, text)
 
 
 def _linkify_links(text):
-    return re.sub(r'(https?://[^\s]+)', r'<a href="\1">\1</a>', text)
+    return re.sub(r'(https?://[\w./\?&]+)', r'<a href="\1">\1</a>', text)
 
 
 @app.route("/<shortcode>+", methods=["GET"])
