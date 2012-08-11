@@ -23,27 +23,48 @@ class Engine(object):
             src_obj = src_class()
             self.src_objs.append(src_obj)
 
-    def _find_posts(self, short_url):
+    def _find_posts(self, surl):
+        short_url = surl.get_short_url()
         print 'Scanning for %s...' % (short_url)
-        posts = []
+
+        social = surl.get_social()
+        posts = social.get('posts', [])
+        sinces = social.get('sinces', {})
+
         for src in self.src_objs:
-            posts.extend(src.find(short_url))
-        return posts
+            name = src.get_name()
+
+            print '\tpolling %s' % (name)
+            since = None
+            if name in sinces:
+                since = sinces[name]
+
+            print '\t\tsince = %s' % (since)
+            new_posts = src.find(short_url, since)
+
+            posts.extend(new_posts)
+            sinces[name] = src.get_since()
+
+        social['posts'] = posts
+        social['sinces'] = sinces
+
+        return social
 
     def _process_code(self, short_code):
         surl = self.sdb.load(short_code)
 
-        # TODO only scan new stuff and add to an existing list of links (don't
-        # replace with the full set each time)
-        posts = self._find_posts(surl.get_short_url())
-        surl.social = posts
-
+        self._find_posts(surl)
         self.sdb.save(surl, update_time=False)
 
-    def run(self):
+    def run(self, count=-1):
+        num_done = 0
+
         for short_code in self.sdb:
             self._process_code(short_code)
-            #return
+
+            num_done += 1
+            if count > 0 and num_done >= count:
+                return
 
 
 class MetaRegister(type):
@@ -59,21 +80,33 @@ class SourceBase(object):
 
 
 class FakeSource(SourceBase):
-    def find(self, short_url):
+    def get_since(self):
+        return 5
+
+    def get_name(self):
+        return 'fake'
+
+    def find(self, short_url, since=None):
         return []
 
 
 class Twitter(SourceBase):
     def __init__(self):
-        pass
+        self.since = None
 
-    def _test_find(self, short_url):
+    def get_since(self):
+        return self.since
+
+    def get_name(self):
+        return 'twitter'
+
+    def _test_find(self, short_url, since=None):
         user = 'aimeeble'
         post_id = 231293851195809793
 
         fake_result = {
-            'source': 'twitter',
-            'id': 5,
+            'source': self.get_name(),
+            'id': post_id,
 
             'handle': '%s' % user,
             'url': 'http://www.twitter.com/%s/status/%u' % (user, post_id),
@@ -81,13 +114,16 @@ class Twitter(SourceBase):
             'when': time.time(),
             'img_url': 'http://a0.twimg.com/profile_images/2171549983/me-2012-04-23_normal.jpg',
         }
+
+        self.since = 9123
+
         return [fake_result]
 
     def _real_find(self, short_url, since=None):
         url = 'http://search.twitter.com/search.json?q=%s' % (urllib2.quote(short_url))
         if since:
             url += '&since_id=%s' % (since)
-        print url
+        print '\t\t%s' % url
 
         req = urllib2.Request(url)
         res = urllib2.urlopen(req)
@@ -96,7 +132,7 @@ class Twitter(SourceBase):
         tweets = []
         for tweet in dct['results']:
             my_format = {
-                'source': 'twitter',
+                'source': self.get_name(),
                 'id': tweet['id'],
 
                 'handle': tweet['from_user'],
@@ -107,12 +143,15 @@ class Twitter(SourceBase):
                 'img_url': tweet['profile_image_url'],
             }
             tweets.append(my_format)
+
+        self.since = dct['max_id']
+
         return tweets
 
     find = _real_find
+    #find = _test_find
+
 
 if __name__ == '__main__':
     e = Engine()
-    e.run()
-    #t = Twitter()
-    #print t.find('http://ame.io/gBX6')
+    e.run(count=15)

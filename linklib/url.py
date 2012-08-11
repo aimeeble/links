@@ -16,7 +16,7 @@ class ShortURL(object):
         self.link_type = ShortURL.REDIR
         self.mime_type = None
         self.qs = None
-        self.social = []
+        self.social = {}
 
     def get_link_type(self):
         return self.link_type
@@ -73,4 +73,4 @@ class ShortURL(object):
         self.mime_type = data.get("mime_type")
         self.info = data.get("info")
         self.latest_short = data.get("latest_short")
-        self.social = data.get("social", [])
+        self.social = data.get("social", {})
