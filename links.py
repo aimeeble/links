@@ -1,6 +1,7 @@
 import os
 import errno
 import uuid
+import re
 import time
 import urllib
 import tempfile
@@ -146,6 +147,20 @@ def _isbot(hit):
     return res
 
 
+def _linkify_hashtags_twitter(text):
+    base = 'http://twitter.com/#!/search/?src=hash&q=%23'
+    return re.sub(r'#([\w_]+)', r'<a href="%s\1">#\1</a>' % base, text)
+
+
+def _linkify_users_twitter(text):
+    base = 'http://twitter.com/'
+    return re.sub(r'@(\w{1,15})', r'<a href="%s\1">@\1</a>' % base, text)
+
+
+def _linkify_links(text):
+    return re.sub(r'(https?://[\w./\?&]+)', r'<a href="\1">\1</a>', text)
+
+
 @app.route("/<shortcode>+", methods=["GET"])
 def stats(shortcode):
     try:
@@ -163,6 +178,7 @@ def stats(shortcode):
 
     info = surl.get_info()
     meta = info.get("meta") if info else None
+    social = surl.get_social()
 
     params = {
         "title": info.get("title") if info else "Unknown",
@@ -176,6 +192,7 @@ def stats(shortcode):
         "referrers": {},  # {ref->count}
         "locations": {},  # {IP->count}
         "hits": [],
+        "social": social,
     }
 
     # collect the stats
@@ -209,6 +226,17 @@ def stats(shortcode):
         hit["area"] = area
 
         params["hits"] += [hit]
+
+    # Process social
+    for post in params["social"]:
+        post["when"] = time.strftime("%Y-%m-%d %H:%M:%S",
+                                  time.localtime(post["when"]))
+        # Linkify URLs
+        post['text'] = _linkify_links(post['text'])
+        # Linkify twitter stuff
+        if post['source'] == 'twitter':
+            post['text'] = _linkify_hashtags_twitter(post['text'])
+            post['text'] = _linkify_users_twitter(post['text'])
 
     return flask.render_template("stats.html", p=params)
 

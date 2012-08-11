@@ -1,30 +1,37 @@
 <html>
 
 <head>
-   <style>
-      .url_info_box {
-         border: 1px solid #000;
-         width: 100%
-      }
-      .url_info_box img {
-         float: right;
-      }
-      .url_info_box th {
-         background: #AAA;
-      }
-      .url_info_box td {
-         border-top: 1px solid #000;
-         padding-right: 1em;
-      }
-
-   </style>
-   <link href="static/flags.css" rel="stylesheet" type="text/css"/>
+   <link href="{{ url_for('static', filename='stats.css') }}" rel="stylesheet" type="text/css"/>
+   <link href="{{ url_for('static', filename='flags.css') }}" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
    <h1><span>{{ p.short_url }}</span></h1>
 
-   <div class="url_info_box">
+   <div id="social" class="url_info_box">
+      <table>
+         <tr>
+            <th colspan="2">Social Media</th>
+         </tr>
+
+         {% for post in p.social %}
+         <tr>
+            <td>
+               {{ post.handle }}
+               <br/>
+               <img src="{{ post.img_url }}"></td>
+            <td>
+               <span>{{ post.text|safe }}</span>
+               <br/>
+               <a href="{{ post.url }}">{{ post.when }}</a>
+            </td>
+         </tr>
+         {% endfor %}
+
+      </table>
+   </div>
+
+   <div id="basic_info" class="url_info_box">
       <table>
          <tr>
             <th colspan="2">Basic Info</th>
@@ -65,7 +72,7 @@
    </div>
    <br/>
 
-   <div class="url_info_box">
+   <div id="refer_sites" class="url_info_box">
       <table>
          <tr>
             <th>Referring Site</th>
@@ -79,9 +86,8 @@
          {% endfor %}
       </table>
    </div>
-   <br/>
 
-   <div class="url_info_box">
+   <div id="refer_locations" class="url_info_box">
       <table>
          <tr>
             <th>IP</th>
