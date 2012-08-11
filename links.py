@@ -212,6 +212,12 @@ def stats(shortcode):
 
         params["hits"] += [hit]
 
+    # Process social
+    for post in params["social"]:
+        print post
+        post["when"] = time.strftime("%Y-%m-%d %H:%M:%S",
+                                  time.localtime(post["when"]))
+
     return flask.render_template("stats.html", p=params)
 
 
