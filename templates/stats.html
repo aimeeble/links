@@ -21,7 +21,7 @@
                <br/>
                <img src="{{ post.img_url }}"></td>
             <td>
-               <span>{{ post.text }}</span>
+               <span>{{ post.text|safe }}</span>
                <br/>
                <a href="{{ post.url }}">{{ post.when }}</a>
             </td>
