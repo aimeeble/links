@@ -56,11 +56,14 @@ class Engine(object):
         self._find_posts(surl)
         self.sdb.save(surl, update_time=False)
 
-    def run(self, one_iter=False):
+    def run(self, count=-1):
+        num_done = 0
+
         for short_code in self.sdb:
             self._process_code(short_code)
 
-            if one_iter:
+            num_done += 1
+            if count > 0 and num_done >= count:
                 return
 
 
@@ -151,4 +154,4 @@ class Twitter(SourceBase):
 
 if __name__ == '__main__':
     e = Engine()
-    e.run(one_iter=False)
+    e.run(count=15)
