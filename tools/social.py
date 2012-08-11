@@ -67,20 +67,23 @@ class Twitter(SourceBase):
     def __init__(self):
         pass
 
-    def find(self, short_url):
+    def _test_find(self, short_url):
         user = 'aimeeble'
         post_id = 231293851195809793
 
         fake_result = {
+            'source': 'twitter',
+            'id': 5,
+
             'handle': '%s' % user,
             'url': 'http://www.twitter.com/%s/status/%u' % (user, post_id),
-            'text': 'foo bar baz',
+            'text': 'foo bar baz (#hash) #hash #foo_bar #hash&hash #hash42 #42has #12 #hash! @user (@user) @user! @user123 @user_name',
             'when': time.time(),
             'img_url': 'http://a0.twimg.com/profile_images/2171549983/me-2012-04-23_normal.jpg',
         }
         return [fake_result]
 
-    def find(self, short_url, since=None):
+    def _real_find(self, short_url, since=None):
         url = 'http://search.twitter.com/search.json?q=%s' % (urllib2.quote(short_url))
         if since:
             url += '&since_id=%s' % (since)
@@ -106,9 +109,10 @@ class Twitter(SourceBase):
             tweets.append(my_format)
         return tweets
 
+    find = _real_find
 
 if __name__ == '__main__':
-    #e = Engine()
-    #e.run()
-    t = Twitter()
-    print t.find('http://ame.io/gBX6')
+    e = Engine()
+    e.run()
+    #t = Twitter()
+    #print t.find('http://ame.io/gBX6')
