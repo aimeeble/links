@@ -19,7 +19,7 @@ function report_activity(hit_code) {
 
 jQuery(document).ready(function() {
     var activity = false;
-    $(document).mousemove(function() {
+    $(document).on('mousemove touchstart', function() {
         if (!activity) {
             activity = true;
             var hit_code = $('#hit_code').text();
