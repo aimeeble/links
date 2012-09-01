@@ -2,6 +2,7 @@ import bs4
 import errno
 import hashlib
 import os
+from PIL import Image
 import urllib2
 import uuid
 
@@ -69,6 +70,18 @@ class UploadedFile(object):
         subpath = os.path.join('static', dirname)
         self.real_filename = os.path.join(subpath, 'file.dat')
         self.link_filename = os.path.join(subpath, self.remote_filename)
+        self.thumb_filename = os.path.join(subpath, 'thumb.jpg')
+
+    def _create_thumbnail(self):
+        '''Creates a thumbnail.
+
+        If the mimetype is that of an image, creates a thumbnail called
+        thumb.jpg.
+
+        '''
+        img = Image.open(self.real_filename)
+        img.thumbnail((640, 480), Image.ANTIALIAS)
+        img.save(self.thumb_filename, 'JPEG')
 
     def get_mimetype(self):
         return self.mimetype
@@ -100,6 +113,10 @@ class UploadedFile(object):
             os.unlink(self.link_filename)
         real_basename = os.path.basename(self.real_filename)
         os.symlink(real_basename, self.link_filename)
+
+        # Thumbnail!
+        if self.mimetype.find("image") != -1:
+            self._create_thumbnail()
 
 
 class HeadRequest(urllib2.Request):
