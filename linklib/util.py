@@ -69,6 +69,16 @@ class UploadedFile(object):
         subpath = os.path.join('static', dirname)
         self.real_filename = os.path.join(subpath, 'file.dat')
         self.link_filename = os.path.join(subpath, self.remote_filename)
+        self.thumb_filename = os.path.join(subpath, 'thumb.jpg')
+
+    def _create_thumbnail(self):
+        '''Creates a thumbnail.
+
+        If the mimetype is that of an image, creates a thumbnail called
+        thumb.jpg.
+
+        '''
+        os.symlink('file.dat', self.thumb_filename)
 
     def get_mimetype(self):
         return self.mimetype
@@ -100,6 +110,10 @@ class UploadedFile(object):
             os.unlink(self.link_filename)
         real_basename = os.path.basename(self.real_filename)
         os.symlink(real_basename, self.link_filename)
+
+        # Thumbnail!
+        if self.mimetype.find("image") != -1:
+            self._create_thumbnail()
 
 
 class HeadRequest(urllib2.Request):
