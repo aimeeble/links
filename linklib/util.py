@@ -76,10 +76,35 @@ class UploadedFile(object):
         '''Creates a thumbnail.
 
         If the mimetype is that of an image, creates a thumbnail called
-        thumb.jpg.
+        thumb.jpg. Also avoids making thumbs for animated gifs, or small
+        images.
 
         '''
+
+        if self.mimetype.find('image') == -1:
+            return
+
         img = Image.open(self.real_filename)
+        if img.size[0] < 640 or img.size[1] < 480:
+            return
+
+        # GIFs might be animated and we don't want a static thumb for those.
+        if img.format == 'GIF':
+            try:
+                img.seek(img.tell() + 1)
+            except EOFError:
+                # seek fails => single-frame => thumb okay!
+                img.seek(0)
+                pass
+            else:
+                # successful seek => animated => no thumb.
+                return
+
+        # since the thumb will be a JPEG (which doesn't support paletted
+        # images), check if we need to RGB.
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+
         img.thumbnail((640, 480), Image.ANTIALIAS)
         img.save(self.thumb_filename, 'JPEG')
 
@@ -115,8 +140,7 @@ class UploadedFile(object):
         os.symlink(real_basename, self.link_filename)
 
         # Thumbnail!
-        if self.mimetype.find("image") != -1:
-            self._create_thumbnail()
+        self._create_thumbnail()
 
 
 class HeadRequest(urllib2.Request):
