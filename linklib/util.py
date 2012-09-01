@@ -2,6 +2,7 @@ import bs4
 import errno
 import hashlib
 import os
+from PIL import Image
 import urllib2
 import uuid
 
@@ -78,7 +79,9 @@ class UploadedFile(object):
         thumb.jpg.
 
         '''
-        os.symlink('file.dat', self.thumb_filename)
+        img = Image.open(self.real_filename)
+        img.thumbnail((640, 480), Image.ANTIALIAS)
+        img.save(self.thumb_filename, 'JPEG')
 
     def get_mimetype(self):
         return self.mimetype
