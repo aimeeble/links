@@ -48,6 +48,19 @@ def forward(shortcode):
     return forward_full(shortcode, None)
 
 
+def _thumbify(url):
+    '''Given a URL, modifies the file portion to be thumb.jpg
+
+    '''
+    parts = os.path.split(url)
+    thumb_path = os.path.join(parts[0], 'thumb.jpg')
+
+    # only return a relative URL to thumbnail if one actually exists :-)
+    if os.path.exists(thumb_path):
+        return thumb_path
+    return url
+
+
 @app.route("/<shortcode>/<path:path>", methods=["GET"])
 def forward_full(shortcode, path):
     # Look up code
@@ -83,6 +96,7 @@ def forward_full(shortcode, path):
     elif surl.is_img():
         data = {
             "img_filename": surl.get_info().get("title"),
+            "img_thumb_url": _thumbify(surl.get_long_url()),
             "img_url": surl.get_long_url(),
             "hit_code": hit_code,
         }
