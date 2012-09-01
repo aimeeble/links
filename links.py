@@ -53,7 +53,12 @@ def _thumbify(url):
 
     '''
     parts = os.path.split(url)
-    return os.path.join(parts[0], 'thumb.jpg')
+    thumb_path = os.path.join(parts[0], 'thumb.jpg')
+
+    # only return a relative URL to thumbnail if one actually exists :-)
+    if os.path.exists(thumb_path):
+        return thumb_path
+    return url
 
 
 @app.route("/<shortcode>/<path:path>", methods=["GET"])
