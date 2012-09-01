@@ -96,8 +96,8 @@ def forward_full(shortcode, path):
     elif surl.is_img():
         data = {
             "img_filename": surl.get_info().get("title"),
-            "img_thumb_url": _thumbify(surl.get_long_url()),
-            "img_url": surl.get_long_url(),
+            "img_thumb_url": urllib.quote(_thumbify(surl.get_long_url())),
+            "img_url": urllib.quote(surl.get_long_url()),
             "hit_code": hit_code,
         }
         return flask.render_template("image.html", data=data)
