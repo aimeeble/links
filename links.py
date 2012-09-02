@@ -53,7 +53,12 @@ def _thumbify(url):
 
     '''
     parts = os.path.split(url)
-    thumb_path = os.path.join(parts[0], 'thumb.jpg')
+
+    original_path = parts[0]
+    original_filename = parts[1]
+
+    extension = os.path.splitext(original_filename)[1]
+    thumb_path = os.path.join(original_path, 'thumb%s' % extension)
 
     # only return a relative URL to thumbnail if one actually exists :-)
     if os.path.exists(thumb_path):
@@ -86,26 +91,50 @@ def forward_full(shortcode, path):
     hit_id = sdb.record_hit(surl.get_short_code(), hit_data)
     hit_code = str(hit_id)
 
+    # Figure out what sort of display template to use...
+    template = None
+    special = None
+    if surl.is_img():
+        template = 'IMG'
+        if surl.get_mime_type().find('image') == -1:
+            special = 'BIN'
+    elif surl.is_redir():
+        # youtube
+        url = surl.get_long_url()
+        query = urllib.splitquery(url)
+        if url.find('www.youtube.com') > 0:
+            surl.link_type = ShortURL.IMG
+            url = urllib.splitvalue(urllib.splitquery(os.path.split(url)[1])[1])[1]
+            surl.long_url = url
+            template = 'IMG'
+            special = 'YT'
+        # find other stuff here....
+        else:
+            template = 'REDIR'
+    elif surl.is_text():
+        template = 'TXT'
+
     # Redirect
-    if surl.is_redir():
+    if template == 'REDIR':
         if path:
             dest_url = "%s/%s" % (surl.get_long_url(), path)
         else:
             dest_url = surl.get_long_url()
         return flask.make_response("Moved", 302, {"Location": dest_url})
-    elif surl.is_img():
+    elif template == 'IMG':
+        length = surl.get_info().get("length")
+        if not length:
+            length = 0
         data = {
             "img_filename": surl.get_info().get("title"),
             "img_thumb_url": urllib.quote(_thumbify(surl.get_long_url())),
-            "img_url": urllib.quote(surl.get_long_url()),
+            "img_url": surl.get_long_url(),
             "hit_code": hit_code,
+            "img_size": length,
+            "special": special,
         }
         return flask.render_template("image.html", data=data)
-
-        return flask.send_file(surl.get_long_url(),
-                               mimetype=surl.get_mime_type(),
-                               add_etags=False)
-    elif surl.is_text():
+    elif template == 'TXT':
         lang = ""
         if "lang" in flask.request.args:
             lang = " data-language=\"%s\"" % flask.request.args["lang"]
