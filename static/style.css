@@ -33,6 +33,11 @@ body {
     vertical-align: middle;
 }
 
+#img_container a {
+    text-decoration: none;
+    color: #fff;
+}
+
 #img_container img {
     max-width: 640px;
     max-height: 480px;
