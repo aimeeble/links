@@ -53,7 +53,12 @@ def _thumbify(url):
 
     '''
     parts = os.path.split(url)
-    thumb_path = os.path.join(parts[0], 'thumb.jpg')
+
+    original_path = parts[0]
+    original_filename = parts[1]
+
+    extension = os.path.splitext(original_filename)[1]
+    thumb_path = os.path.join(original_path, 'thumb%s' % extension)
 
     # only return a relative URL to thumbnail if one actually exists :-)
     if os.path.exists(thumb_path):
