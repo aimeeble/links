@@ -86,6 +86,29 @@ def forward_full(shortcode, path):
     hit_id = sdb.record_hit(surl.get_short_code(), hit_data)
     hit_code = str(hit_id)
 
+    # Figure out what sort of display template to use...
+    template = None
+    special = None
+    if surl.is_img():
+        template = 'IMG'
+        if surl.get_mime_type().find('image') == -1:
+            special = 'BIN'
+    elif surl.is_redir():
+        # youtube
+        url = surl.get_long_url()
+        query = urllib.splitquery(url)
+        if url.find('www.youtube.com') > 0:
+            surl.link_type = ShortURL.IMG
+            url = urllib.splitvalue(urllib.splitquery(os.path.split(url)[1])[1])[1]
+            surl.long_url = url
+            template = 'IMG'
+            special = 'YT'
+        # find other stuff here....
+        else:
+            template = 'REDIR'
+    elif surl.is_text():
+        template = 'TXT'
+
     # Redirect
     if surl.is_redir():
         if path:
