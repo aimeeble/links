@@ -70,7 +70,10 @@ class UploadedFile(object):
         subpath = os.path.join('static', dirname)
         self.real_filename = os.path.join(subpath, 'file.dat')
         self.link_filename = os.path.join(subpath, self.remote_filename)
-        self.thumb_filename = os.path.join(subpath, 'thumb.jpg')
+
+        extension = os.path.splitext(self.link_filename)[1]
+        path = os.path.dirname(self.link_filename)
+        self.thumb_filename = os.path.join(path, 'thumb%s' % extension)
 
     def _create_thumbnail(self):
         '''Creates a thumbnail.
@@ -80,7 +83,6 @@ class UploadedFile(object):
         images.
 
         '''
-
         if self.mimetype.find('image') == -1:
             return
 
@@ -100,13 +102,8 @@ class UploadedFile(object):
                 # successful seek => animated => no thumb.
                 return
 
-        # since the thumb will be a JPEG (which doesn't support paletted
-        # images), check if we need to RGB.
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
-
         img.thumbnail((640, 480), Image.ANTIALIAS)
-        img.save(self.thumb_filename, 'JPEG')
+        img.save(self.thumb_filename)
 
     def get_mimetype(self):
         return self.mimetype
