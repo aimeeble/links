@@ -136,8 +136,7 @@ class Twitter(SourceBase):
                 'id': tweet['id'],
 
                 'handle': tweet['from_user'],
-                'url': 'http://www.twitter.com/%s/status/%u' % \
-                        (tweet['from_user'], tweet['id']),
+                'url': 'http://www.twitter.com/%s/status/%u' % (tweet['from_user'], tweet['id']),
                 'text': tweet['text'],
                 'when': time.time(),
                 'img_url': tweet['profile_image_url'],

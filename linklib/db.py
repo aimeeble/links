@@ -210,10 +210,10 @@ class ShortDBMongo(ShortDBBase):
 
         objid = ObjectId(hit_code)
         res = self.db.hits.update(
-                {"_id": objid},
-                to_update,
-                upsert=False,
-                multi=False)
+            {"_id": objid},
+            to_update,
+            upsert=False,
+            multi=False)
 
     def list_hits(self, short_code):
         class _gen:

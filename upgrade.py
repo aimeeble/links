@@ -34,14 +34,14 @@ class ConvertSaveFileFormat(ConvertBase):
 
             filename = os.path.basename(row["info"]["title"])
 
-            print "%s: %s -> %s" % (row["short_code"], row["long_url"], filename)
+            print "%s: %s->%s" % (row["short_code"], row["long_url"], filename)
 
             with open(row["long_url"], "r") as fh:
                 uf = UploadedFile(
-                        None,
-                        stream=fh,
-                        mimetype=row["mime_type"],
-                        filename=filename)
+                    None,
+                    stream=fh,
+                    mimetype=row["mime_type"],
+                    filename=filename)
                 uf._update_filenames()
                 if uf.get_filename() == row["long_url"]:
                     print "\tskipping new format"
@@ -72,10 +72,10 @@ class CreateThumbnails(ConvertBase):
 
             with open(row["long_url"], "r") as fh:
                 uf = UploadedFile(
-                        None,
-                        stream=fh,
-                        mimetype=row["mime_type"],
-                        filename=filename)
+                    None,
+                    stream=fh,
+                    mimetype=row["mime_type"],
+                    filename=filename)
                 uf._update_filenames()
 
                 if os.path.exists(uf.thumb_filename):
