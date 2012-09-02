@@ -80,7 +80,7 @@
          </tr>
          {% for ref in p.referrers %}
          <tr>
-            <td>{{ ref }}</td>
+            <td><a title="{{ ref }}">{{ ref[:50] if ref }}</a></td>
             <td>{{ p.referrers[ref] }}</td>
          </tr>
          {% endfor %}
@@ -124,7 +124,7 @@
          {% endif %}
             <td>{{ hit.time }}</td>
             <td>{{ hit.method }}</td>
-            <td>{{ hit.referrer }}</td>
+            <td><a title="{{ hit.referrer }}">{{ hit.referrer[:50] if hit.referrer }}</a></td>
             <td>{{ hit.remote_addr }}</td>
             <td>
                <img src="" class="flag flag-{{ hit.cc.lower() }}" title="{{ hit.cc }}" alt="{{ hit.cc }}"/>
