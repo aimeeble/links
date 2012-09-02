@@ -110,25 +110,26 @@ def forward_full(shortcode, path):
         template = 'TXT'
 
     # Redirect
-    if surl.is_redir():
+    if template == 'REDIR':
         if path:
             dest_url = "%s/%s" % (surl.get_long_url(), path)
         else:
             dest_url = surl.get_long_url()
         return flask.make_response("Moved", 302, {"Location": dest_url})
-    elif surl.is_img():
+    elif template == 'IMG':
+        length = surl.get_info().get("length")
+        if not length:
+            length = 0
         data = {
             "img_filename": surl.get_info().get("title"),
             "img_thumb_url": urllib.quote(_thumbify(surl.get_long_url())),
-            "img_url": urllib.quote(surl.get_long_url()),
+            "img_url": surl.get_long_url(),
             "hit_code": hit_code,
+            "img_size": length,
+            "special": special,
         }
         return flask.render_template("image.html", data=data)
-
-        return flask.send_file(surl.get_long_url(),
-                               mimetype=surl.get_mime_type(),
-                               add_etags=False)
-    elif surl.is_text():
+    elif template == 'TXT':
         lang = ""
         if "lang" in flask.request.args:
             lang = " data-language=\"%s\"" % flask.request.args["lang"]

@@ -14,7 +14,16 @@
          </div>
 
          <div id="img_container">
+         {% if data.special == 'YT' %}
+            <iframe width="640" height="480" src="http://www.youtube.com/v/{{ data.img_url }}" frameborder="0" allowfullscreen></iframe>
+         {% elif data.special == 'BIN' %}
+         <a href="{{ data.img_url }}">
+            <img src="{{ url_for('static', filename='binary.png') }}"/>
+            <p>Click to download {{ data.img_filename }} ({{ data.img_size|filesizeformat(True) }})</p>
+         </a>
+         {% else %}
             <a href="{{ data.img_url }}"><img src="{{ data.img_thumb_url }}" /></a>
+         {% endif %}
          </div>
       </div>
    </body>
