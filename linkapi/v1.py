@@ -173,10 +173,12 @@ def dump():
 
     for short_code in sdb:
         surl = sdb.load(short_code)
+        hits = sdb.count_hits(short_code)
         surl_dict = {
             "url": surl.get_long_url(),
             "short_code": surl.get_short_code(),
             "short_url": surl.get_short_url(),
+            "hits": hits,
         }
         res.append(surl_dict)
 

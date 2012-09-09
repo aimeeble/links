@@ -5,7 +5,7 @@ function load_recent_urls(divid) {
       "dataType": "json",
 
       "success": function(data) {
-         $(divid).html("<tr><th>Code</th><th>Long URL</th><th>Links</th></tr>");
+         $(divid).html("<tr><thead><th>Code</th><th>Long URL</th><th>Hits</th><th>Links</th></tr></thead>");
 
          for (id in data.result) {
             url = data.result[id];
@@ -19,6 +19,7 @@ function load_recent_urls(divid) {
             html = "<tr>";
             html += "<td>" + url.short_code + "</td>";
             html += "<td>" + long_url + "</td>";
+            html += "<td>" + url.hits + "</td>";
             html += "<td>";
             html += "<a href=\"" + url.short_url + "\">Link</a> &nbsp; | &nbsp;";
             html += "<a href=\"" + url.short_url + "+\">Stats</a>";
@@ -43,7 +44,7 @@ function ajax_shorten(longurl, resultid) {
       "data": {"url": longurl},
 
       "success": function(data) {
-         $(resultid).html("<a href=\"" + data.short_url + "\">" + data.short_url + "</a>");
+         $(resultid).val(data.short_url);
          load_recent_urls("#recent");
       },
       "failure": function() {

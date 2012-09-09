@@ -1,38 +1,50 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
    <head>
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
       <script src="{{ url_for('static', filename='links.js') }}"></script>
-      <style>
-      </style>
+      <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+      <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
    </head>
 
    <body>
-      <p>Hello, welcome to Aimee's URL shortener.</p>
+      <div class="container">
+      <div class="row">
+         <div class="span9">
+            <h1>Links<br/><small>Aimee's URL Shortener</small></h1>
+         </div>
+      </div>
 
-      <form enctype="multipart/form-data" method="POST" action="/api/v1/post">
-         <div "url_input_div">
-            <label for="full_url_input">Full URL:</label>
-            <input name="full_url" id="full_url_input" type="text" size="50" />
+      <div class="row">
+         <div class="span5">
+            <form enctype="multipart/form-data" method="POST" action="/api/v1/post">
+               <legend>Shorten URL</legend>
+               <label for="full_url_input">Full URL:</label>
+               <input name="full_url" id="full_url_input" type="text" size="50" placeholder="Enter a URL"/>
+               <input id="shorten_button" type="submit" value="Shorten" class="btn"/>
+            </form>
          </div>
 
-         <div id="imgfile_input_div">
-            <label for="imgfile_input">Image file:</label>
-            <input name="file" id="fimgile_input" type="file" />
+         <div class="span7">
+            <form enctype="multipart/form-data" method="POST" action="/api/v1/post">
+               <legend>Upload a File</legend>
+               <label for="imgfile_input">Image file:</label>
+               <input name="file" id="fimgile_input" type="file" class="btn"/>
+               <input id="shorten_button" type="submit" value="Shorten" class="btn"/>
+            </form>
          </div>
+      </div>
 
-         <div id="submit_div">
-            <input id="shorten_button" type="submit" value="Shorten" />
+      <div class="row">
+         <input type="text" placeholder="short URL" id="short_url" class="span12" readonly="readonly" style="text-align: center"/>
+      </div>
+
+      <div class="row">
+         <div class="span12">
+            <h4>Previously shortened links</h4>
+            <table id="recent" class="table table-hover"></table>
          </div>
-      </form>
-
-      {% if short_url %}
-      <div id="short_url"><a href="{{ short_url }}">{{ short_url }}</a></div>
-      {% else %}
-      <div id="short_url">{{ base }}NEW_SHORT_CODE</div>
-      {% endif %}
-
-      <table id="recent">
-      </table>
-
+      </div>
+   </div>
    </body>
 </html>

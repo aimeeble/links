@@ -104,7 +104,8 @@ def forward_full(shortcode, path):
         query = urllib.splitquery(url)
         if url.find('www.youtube.com') > 0:
             surl.link_type = ShortURL.IMG
-            url = urllib.splitvalue(urllib.splitquery(os.path.split(url)[1])[1])[1]
+            query = urllib.splitquery(os.path.split(url)[1])[1]
+            url = urllib.splitvalue(query)[1]
             surl.long_url = url
             template = 'IMG'
             special = 'YT'
@@ -261,6 +262,7 @@ def stats(shortcode):
 
         hit["time"] = time.strftime("%Y-%m-%d %H:%M:%S",
                                     time.localtime(hit["time"]))
+        hit["reltime"] = "2h"
 
         cc = geo.country_code_by_addr(hit["remote_addr"])
         hit["cc"] = cc if cc else "??"
@@ -273,7 +275,7 @@ def stats(shortcode):
     # Process social
     for post in params.get("social", {}).get('posts', []):
         post["when"] = time.strftime("%Y-%m-%d %H:%M:%S",
-                                  time.localtime(post["when"]))
+                                     time.localtime(post["when"]))
         # Linkify URLs
         post['text'] = _linkify_links(post['text'])
         # Linkify twitter stuff
