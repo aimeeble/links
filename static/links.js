@@ -19,7 +19,7 @@ function load_recent_urls(divid) {
             html = "<tr>";
             html += "<td>" + url.short_code + "</td>";
             html += "<td>" + long_url + "</td>";
-            html += "<td>1</td>";
+            html += "<td>" + url.hits + "</td>";
             html += "<td>";
             html += "<a href=\"" + url.short_url + "\">Link</a> &nbsp; | &nbsp;";
             html += "<a href=\"" + url.short_url + "+\">Stats</a>";

@@ -231,3 +231,6 @@ class ShortDBMongo(ShortDBBase):
 
         cur = self.db.hits.find({"short_code": short_code}, {"stats": 1})
         return _gen(cur)
+
+    def count_hits(self, short_code):
+        return self.db.hits.find({"short_code": short_code}).count()
