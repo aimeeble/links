@@ -262,6 +262,7 @@ def stats(shortcode):
 
         hit["time"] = time.strftime("%Y-%m-%d %H:%M:%S",
                                     time.localtime(hit["time"]))
+        hit["reltime"] = "2h"
 
         cc = geo.country_code_by_addr(hit["remote_addr"])
         hit["cc"] = cc if cc else "??"

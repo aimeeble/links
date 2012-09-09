@@ -3,141 +3,167 @@
 <head>
    <link href="{{ url_for('static', filename='stats.css') }}" rel="stylesheet" type="text/css"/>
    <link href="{{ url_for('static', filename='flags.css') }}" rel="stylesheet" type="text/css"/>
+   <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
+   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+   <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
 </head>
 
 <body>
-   <h1><span>{{ p.short_url }}</span></h1>
+   <div class="container">
+   <h1>{{ p.short_url }}</h1>
 
-   <div id="social" class="url_info_box">
-      <table>
-         <tr>
-            <th colspan="2">Social Media</th>
-         </tr>
-
-         {% for post in p.social.posts %}
-         <tr>
-            <td>
-               {{ post.handle }}
-               <br/>
-               <img src="{{ post.img_url }}"></td>
-            <td>
-               <span>{{ post.text|safe }}</span>
-               <br/>
-               <a href="{{ post.url }}">{{ post.when }}</a>
-            </td>
-         </tr>
-         {% endfor %}
-
-      </table>
+   <div class="row">
+      <div class="span12 url_info_box">
+         <table class="table table-striped">
+            <thead>
+               <tr>
+                  <th colspan="2">Basic Info</th>
+               </tr>
+            </thead>
+            <tr>
+               <td>Title</td>
+               <td>{{ p.title }}</td>
+            </tr>
+            <tr>
+               <td>Description</td>
+               <td>{{ p.description }}</td>
+            </tr>
+            <tr>
+               <td>Link type</td>
+               <td>{{ p.link_type }}</td>
+            </tr>
+            <tr>
+               <td>Mime type</td>
+               <td>{{ p.mime_type }}</td>
+            </tr>
+            <tr>
+               <td>Content length</td>
+               <td>{{ p.contentlength }}</td>
+            </tr>
+            <tr>
+               <td>Clicks</td>
+               <td>{{ p.hits|length }}</td>
+            </tr>
+            <tr>
+               <td>Short URL</td>
+               <td><a href="{{ p.short_url }}">{{ p.short_url }}</a></td>
+            </tr>
+            <tr>
+               <td>Long URL</td>
+               <td><a href="{{ p.long_url }}">{{ p.long_url }}</a></td>
+            </tr>
+         </table>
+      </div>
    </div>
 
-   <div id="basic_info" class="url_info_box">
-      <table>
-         <tr>
-            <th colspan="2">Basic Info</th>
-         </tr>
-         <tr>
-            <td>Title</td>
-            <td>{{ p.title }}</td>
-         </tr>
-         <tr>
-            <td>Description</td>
-            <td>{{ p.description }}</td>
-         </tr>
-         <tr>
-            <td>Link type</td>
-            <td>{{ p.link_type }}</td>
-         </tr>
-         <tr>
-            <td>Mime type</td>
-            <td>{{ p.mime_type }}</td>
-         </tr>
-         <tr>
-            <td>Content length</td>
-            <td>{{ p.contentlength }}</td>
-         </tr>
-         <tr>
-            <td>Clicks</td>
-            <td>{{ p.hits|length }}</td>
-         </tr>
-         <tr>
-            <td>Short URL</td>
-            <td><a href="{{ p.short_url }}">{{ p.short_url }}</a></td>
-         </tr>
-         <tr>
-            <td>Long URL</td>
-            <td><a href="{{ p.long_url }}">{{ p.long_url }}</a></td>
-         </tr>
-      </table>
-   </div>
-   <br/>
+   <div class="row">
+      <div class="span12 url_info_box">
+         <table class="table">
+            <thead>
+               <tr>
+                  <th colspan="2">Social Media</th>
+               </tr>
+            </thead>
 
-   <div id="refer_sites" class="url_info_box">
-      <table>
-         <tr>
-            <th>Referring Site</th>
-            <th>Hits</th>
-         </tr>
-         {% for ref in p.referrers %}
-         <tr>
-            <td><a title="{{ ref }}">{{ ref[:50] if ref }}</a></td>
-            <td>{{ p.referrers[ref] }}</td>
-         </tr>
-         {% endfor %}
-      </table>
+            {% for post in p.social.posts %}
+            <tr>
+               <td>
+                  {{ post.handle }}
+                  <br/>
+                  <img src="{{ post.img_url }}"></td>
+               <td>
+                  <span>{{ post.text|safe }}</span>
+                  <br/>
+                  <a href="{{ post.url }}">{{ post.when }}</a>
+               </td>
+            </tr>
+            {% endfor %}
+
+         </table>
+      </div>
    </div>
 
-   <div id="refer_locations" class="url_info_box">
-      <table>
-         <tr>
-            <th>IP</th>
-            <th>CC</th>
-            <th>Hits</th>
-         </tr>
-         {% for loc in p.locations %}
-         <tr>
-            <td>{{ loc }}</td>
-            <td>{{ p.locations[loc][0] }}</td>
-            <td>{{ p.locations[loc][1] }}</td>
-         </tr>
-         {% endfor %}
-      </table>
+   <div class="row">
+      <div class="span12">
+         <button type="button" class="btn btn-danger" data-toggle="collapse" data-target="#stat_accordian">Hit demographics</button>
+      </div>
    </div>
-   <br/>
 
-   <div class="url_info_box">
-      <table>
-         <tr>
-            <th>Time</th>
-            <th>Method</th>
-            <th>Referrer</th>
-            <th>IP</th>
-            <th>CC</th>
-            <th>Agent</th>
-            <th>Act</th>
-         </tr>
-         {% for hit in p.hits %}
-         {% if hit.bot %}
-         <tr style="background-color: #faa">
-         {% else %}
-         <tr>
-         {% endif %}
-            <td>{{ hit.time }}</td>
-            <td>{{ hit.method }}</td>
-            <td><a title="{{ hit.referrer }}">{{ hit.referrer[:50] if hit.referrer }}</a></td>
-            <td>{{ hit.remote_addr }}</td>
-            <td>
-               <img src="" class="flag flag-{{ hit.cc.lower() }}" title="{{ hit.cc }}" alt="{{ hit.cc }}"/>
-               <span>{{ hit.area.city }}, {{ hit.area.region_name }}</span>
-            </td>
-            <td><a title="{{ hit.agent }}">{{ hit.agent[:20] if hit.agent }}</a></td>
-            <td>
-               {% if hit.activity %}✔{% endif %}
-            </td>
-         </tr>
-         {% endfor %}
-      </table>
+   <div class="row collapse" id="stat_accordian">
+      <div class="span9 url_info_box">
+         <table class="table table-striped">
+            <thead>
+               <tr>
+                  <th>Referring Site</th>
+                  <th>Hits</th>
+               </tr>
+            </thead>
+            {% for ref in p.referrers %}
+            <tr>
+               <td><a title="{{ ref }}">{{ ref[:50] if ref }}</a></td>
+               <td>{{ p.referrers[ref] }}</td>
+            </tr>
+            {% endfor %}
+         </table>
+      </div>
+
+      <div class="span3 url_info_box">
+         <table class="table table-striped">
+            <thead>
+               <tr>
+                  <th>IP</th>
+                  <th>CC</th>
+                  <th>Hits</th>
+               </tr>
+            </thead>
+            {% for loc in p.locations %}
+            <tr>
+               <td>{{ loc }}</td>
+               <td>{{ p.locations[loc][0] }}</td>
+               <td>{{ p.locations[loc][1] }}</td>
+            </tr>
+            {% endfor %}
+         </table>
+      </div>
    </div>
+
+   <div class="row">
+      <div class="span12">
+         <table class="table table-striped">
+            <thead>
+               <tr>
+                  <th>Time</th>
+                  <th>Method</th>
+                  <th>IP</th>
+                  <th colspan="2">CC</th>
+                  <th></th>
+               </tr>
+            </thead>
+            <tbody>
+               {% for hit in p.hits %}
+               {% if hit.bot %}
+               <tr class="error">
+               {% elif hit.activity %}
+               <tr class="success">
+               {% else %}
+               <tr>
+               {% endif %}
+                  <td>{{ hit.time }}</td>
+                  <td>{{ hit.method }}</td>
+                  <td>{{ hit.remote_addr }}</td>
+                  <td><img src="" class="flag flag-{{ hit.cc.lower() }}" title="{{ hit.cc }}" alt="{{ hit.cc }}"/></td>
+                  <td>{{ hit.area.city }}, {{ hit.area.region_name }}</td>
+                  <td>
+                     {% if hit.activity %}<i class="icon-user"></i>{% endif %}
+                     {% if hit.bot %}<i class="icon-thumbs-down"></i>{% endif %}
+                  </td>
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+      </div>
+</div>
+</div>
 
 </body>
 </html>
