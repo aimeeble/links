@@ -225,7 +225,9 @@ class ShortDBMongo(ShortDBBase):
 
             def next(self):
                 row = self.cursor.next()
-                return row["stats"]
+                res = {"_id": row["_id"]}
+                res.update(row["stats"])
+                return res
 
         cur = self.db.hits.find({"short_code": short_code}, {"stats": 1})
         return _gen(cur)
