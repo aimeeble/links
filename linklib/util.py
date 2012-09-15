@@ -74,6 +74,7 @@ class UploadedFile(object):
         extension = os.path.splitext(self.link_filename)[1]
         path = os.path.dirname(self.link_filename)
         self.thumb_filename = os.path.join(path, 'thumb%s' % extension)
+        self.tiny_thumb_filename = os.path.join(path, 'tiny%s' % extension)
 
     def _create_thumbnail(self):
         '''Creates a thumbnail.
@@ -102,8 +103,13 @@ class UploadedFile(object):
                 # successful seek => animated => no thumb.
                 return
 
+        # big thumb
         img.thumbnail((640, 480), Image.ANTIALIAS)
         img.save(self.thumb_filename)
+
+        # tiny thumb
+        img.thumbnail((64, 64), Image.ANTIALIAS)
+        img.save(self.tiny_thumb_filename)
 
     def get_mimetype(self):
         return self.mimetype

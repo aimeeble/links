@@ -78,7 +78,8 @@ class CreateThumbnails(ConvertBase):
                     filename=filename)
                 uf._update_filenames()
 
-                if os.path.exists(uf.thumb_filename):
+                if os.path.exists(uf.thumb_filename) and \
+                        os.path.exists(uf.tiny_thumb_filename):
                     print '\tskipping existing thumb'
                     continue
                 uf._create_thumbnail()
