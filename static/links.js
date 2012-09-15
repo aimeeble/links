@@ -36,7 +36,7 @@ function load_recent_urls(divid) {
    });
 }
 
-function ajax_shorten(longurl, resultid) {
+function ajax_shorten(longurl) {
    $.ajax({
       "url": "/api/v1/shrink",
       "type": "POST",
@@ -44,14 +44,64 @@ function ajax_shorten(longurl, resultid) {
       "data": {"url": longurl},
 
       "success": function(data) {
-         $(resultid).val(data.short_url);
+         $('#progress_bar').text(data.short_url);
          load_recent_urls("#recent");
       },
       "failure": function() {
-         $(resultid).text("FAIL!");
+         $('#progress_bar').text("FAIL!");
       },
       "error": function(xhr, textStatus, err) {
-         $(resultid).text("error: " + err + ", text: " + textStatus);
+         $('#progress_bar').text("error: " + err + ", text: " + textStatus);
+      }
+   });
+}
+
+function ajax_progress(evt) {
+   $('#progress_bar').width('0%');
+   if (evt.lengthComputable) {
+      pct = Math.round(evt.loaded * 100 / evt.total)
+      $('#progress_bar').width(pct + '%');
+      console.log('Loaded: ' + pct + '%');
+   } else {
+      console.log('Loading...');
+   }
+}
+
+function ajax_upload() {
+   formData = new FormData();
+   input = document.getElementById('imgfile_input');
+   formData.append('file', input.files[0]);
+
+   $.ajax({
+      "url": "/api/v1/post",
+      "type": "POST",
+      "dataType": "json",
+      "contentType": false,
+      "cache": false,
+      "processData": false,
+      "data": formData,
+
+      "xhr": function() {
+         myXhr = $.ajaxSettings.xhr();
+         myXhr.upload.addEventListener('progress', ajax_progress, false);
+         return myXhr;
+      },
+
+      "beforeSend": function(xhr, settings) {
+         $('#progress_bar').text('');
+         $('#progress_bar').parent().addClass('progress-striped active');
+      },
+
+      "success": function(data) {
+         $('#progress_bar').parent().removeClass('progress-striped active');
+         $('#progress_bar').text(data.short_url);
+         load_recent_urls("#recent");
+      },
+      "failure": function() {
+         $('#progress_bar').text("FAIL!");
+      },
+      "error": function(xhr, textStatus, err) {
+         $('#progress_bar').text("error: " + err + ", text: " + textStatus);
       }
    });
 }
@@ -62,14 +112,28 @@ jQuery(document).ready(function() {
       full_url = $("#full_url_input").attr("value");
 
       if (full_url.length > 0) {
-         ajax_shorten(full_url, "#short_url");
-      } else {
-         /* Files submit normally. */
-         return true;
+         ajax_shorten(full_url);
       }
 
       /* Block the submit button's normal action. */
       return false;
+   });
+
+   $("#upload_button").click(function(evt) {
+      ajax_upload();
+
+      /* Block the submit button's normal action. */
+      return false;
+   });
+
+   $('#short_url').bind("ajaxProgress", function (xhr, progressEvt) {
+      console.log('global...');
+      if (progressEvt.lengthComputable) {
+         pct = Math.round(progressEvt.loaded * 100 / progressEvt.total)
+         console.log('Loaded: ' + pct + '%');
+      } else {
+         console.log('Loading...');
+      }
    });
 
    load_recent_urls("#recent");
