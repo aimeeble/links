@@ -42,3 +42,13 @@ body {
     max-width: 640px;
     max-height: 480px;
 }
+
+.thumb_box {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 2em;
+    background: #fff;
+    margin-top: 2em;
+    border: 1px solid #ccc;
+}
