@@ -88,8 +88,6 @@ class UploadedFile(object):
             return
 
         img = Image.open(self.real_filename)
-        if img.size[0] < 640 or img.size[1] < 480:
-            return
 
         # GIFs might be animated and we don't want a static thumb for those.
         if img.format == 'GIF':
@@ -103,13 +101,15 @@ class UploadedFile(object):
                 # successful seek => animated => no thumb.
                 return
 
-        # big thumb
-        img.thumbnail((640, 480), Image.ANTIALIAS)
-        img.save(self.thumb_filename)
+        # big thumb, only if it'd be smaller.
+        if not (img.size[0] < 640 or img.size[1] < 480):
+            img.thumbnail((640, 480), Image.ANTIALIAS)
+            img.save(self.thumb_filename)
 
-        # tiny thumb
-        img.thumbnail((64, 64), Image.ANTIALIAS)
-        img.save(self.tiny_thumb_filename)
+        # tiny thumb, only if it'd be smaller.
+        if not (img.size[0] < 120 or img.size[1] < 120):
+            img.thumbnail((120, 120), Image.ANTIALIAS)
+            img.save(self.tiny_thumb_filename)
 
     def get_mimetype(self):
         return self.mimetype
