@@ -69,6 +69,25 @@ def _thumbify(url, tiny=False):
     return url
 
 
+def _friendly_to_seconds(t):
+    '''Converts a friendly "5m30s" style time into just an integer number of
+    seconds.
+
+    '''
+    mins = 0
+    secs = 0
+
+    m = t.find('m')
+    if m != -1:
+        mins = int(t[:m])
+
+    s = t.find('s')
+    if s != -1:
+        secs = int(t[m+1:s])
+
+    return mins * 60 + secs
+
+
 @app.route("/<shortcode>/<path:path>", methods=["GET"])
 def forward_full(shortcode, path):
     # Look up code
@@ -108,7 +127,19 @@ def forward_full(shortcode, path):
         if url.find('www.youtube.com') > 0:
             surl.link_type = ShortURL.IMG
             query = urllib.splitquery(os.path.split(url)[1])[1]
+
             url = urllib.splitvalue(query)[1]
+
+            url, t = urllib.splittag(url)
+            if t:
+                t = urllib.splitvalue(t)[1]
+                t = _friendly_to_seconds(t)
+            else:
+                t = 0
+
+            if t > 0:
+                url = '%s?start=%s' % (url, t)
+
             surl.long_url = url
             template = 'IMG'
             special = 'YT'
