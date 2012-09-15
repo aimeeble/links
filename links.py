@@ -48,7 +48,7 @@ def forward(shortcode):
     return forward_full(shortcode, None)
 
 
-def _thumbify(url):
+def _thumbify(url, tiny=False):
     '''Given a URL, modifies the file portion to be thumb.jpg
 
     '''
@@ -58,7 +58,10 @@ def _thumbify(url):
     original_filename = parts[1]
 
     extension = os.path.splitext(original_filename)[1]
-    thumb_path = os.path.join(original_path, 'thumb%s' % extension)
+    if tiny:
+        thumb_path = os.path.join(original_path, 'tiny%s' % extension)
+    else:
+        thumb_path = os.path.join(original_path, 'thumb%s' % extension)
 
     # only return a relative URL to thumbnail if one actually exists :-)
     if os.path.exists(thumb_path):
@@ -224,6 +227,12 @@ def stats(shortcode):
     meta = info.get("meta") if info else None
     social = surl.get_social()
 
+    # tiny thumb?
+    thumb = None
+    if surl.get_link_type() == ShortURL.IMG and \
+            surl.get_mime_type().find('image') != -1:
+        thumb = _thumbify(surl.get_long_url(), tiny=True)
+
     params = {
         "title": info.get("title") if info else "Unknown",
         "description": meta.get("description") if meta else "None",
@@ -237,6 +246,7 @@ def stats(shortcode):
         "locations": {},  # {IP->count}
         "hits": [],
         "social": social,
+        "thumb": thumb,
     }
 
     # collect the stats
