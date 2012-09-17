@@ -171,6 +171,8 @@ def forward_full(shortcode, path):
         return flask.render_template("image.html", data=data)
     elif template == 'TXT':
         lang = ""
+        if "lang" in surl.get_info() and surl.get_info()["lang"]:
+            lang = " data-language=\"%s\"" % surl.get_info()["lang"]
         if "lang" in flask.request.args:
             lang = " data-language=\"%s\"" % flask.request.args["lang"]
         with open(surl.get_long_url(), "r") as f:
@@ -338,6 +340,8 @@ def new_paste():
         return flask.make_response("Bad Request", 400)
 
     text = flask.request.form["p"]
+    title = flask.request.form.get("title")
+    lang = flask.request.form.get("lang")
 
     with tempfile.TemporaryFile() as tmp_fh:
         tmp_fh.write(text)
@@ -351,6 +355,8 @@ def new_paste():
         fullpath = uploaded_file.get_filename()
 
     surl = sdb.new(fullpath)
+    surl.get_info()["title"] = title
+    surl.get_info()["lang"] = lang
     surl.link_type = ShortURL.TEXT
     surl.mime_type = "text/plain"
     sdb.save(surl)
