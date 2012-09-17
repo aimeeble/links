@@ -36,6 +36,11 @@ function load_recent_urls(divid) {
    });
 }
 
+function progress_done(text) {
+   $('#progress_bar').parent().removeClass('progress-striped active');
+   $('#progress_bar').text(text);
+}
+
 function ajax_shorten(longurl) {
    $.ajax({
       "url": "/api/v1/shrink",
@@ -44,26 +49,25 @@ function ajax_shorten(longurl) {
       "data": {"url": longurl},
 
       "success": function(data) {
-         $('#progress_bar').text(data.short_url);
+         progress_done(data.short_url);
          load_recent_urls("#recent");
       },
       "failure": function() {
-         $('#progress_bar').text("FAIL!");
+         progress_done("FAIL!");
       },
       "error": function(xhr, textStatus, err) {
-         $('#progress_bar').text("error: " + err + ", text: " + textStatus);
+         progress_done("error: " + err + ", text: " + textStatus);
       }
    });
 }
 
 function ajax_progress(evt) {
-   $('#progress_bar').width('0%');
    if (evt.lengthComputable) {
       pct = Math.round(evt.loaded * 100 / evt.total)
       $('#progress_bar').width(pct + '%');
-      console.log('Loaded: ' + pct + '%');
    } else {
-      console.log('Loading...');
+      $('#progress_bar').width('100%');
+      $('#progress_bar').text('Loading...');
    }
 }
 
@@ -86,22 +90,19 @@ function ajax_upload() {
          myXhr.upload.addEventListener('progress', ajax_progress, false);
          return myXhr;
       },
-
       "beforeSend": function(xhr, settings) {
          $('#progress_bar').text('');
          $('#progress_bar').parent().addClass('progress-striped active');
       },
-
       "success": function(data) {
-         $('#progress_bar').parent().removeClass('progress-striped active');
-         $('#progress_bar').text(data.short_url);
+         progress_done(data.short_url);
          load_recent_urls("#recent");
       },
       "failure": function() {
-         $('#progress_bar').text("FAIL!");
+         progress_done("FAIL!");
       },
       "error": function(xhr, textStatus, err) {
-         $('#progress_bar').text("error: " + err + ", text: " + textStatus);
+         progress_done("error: " + err + ", text: " + textStatus);
       }
    });
 }
