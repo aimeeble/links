@@ -8,7 +8,6 @@ import tempfile
 
 import flask
 import werkzeug
-import pygeoip
 
 import linkapi
 from linklib.db import ShortDB
@@ -17,6 +16,7 @@ from linklib.db import ShortInvalidException
 from linklib.url import ShortURL
 from linklib.util import UploadedFile
 from util import Forwarder
+from classify import Classifier
 
 
 BASE_URL = "http://localhost:5000/"
@@ -113,18 +113,6 @@ def stats(shortcode):
     except ShortInvalidException, e:
         return flask.make_response("not found", 404)
 
-    geo = pygeoip.GeoIP('data/GeoIP.dat')
-    gic = pygeoip.GeoIP('data/GeoLiteCity.dat')
-
-    LINK_TYPES = {}
-    LINK_TYPES[1] = "REDIR"
-    LINK_TYPES[2] = "IMG"
-    LINK_TYPES[3] = "TEXT"
-
-    info = surl.get_info()
-    meta = info.get("meta") if info else None
-    social = surl.get_social()
-
     # tiny thumb?
     thumb = None
     if surl.get_link_type() == ShortURL.IMG and \
@@ -132,10 +120,10 @@ def stats(shortcode):
         thumb = Forwarder._thumbify(surl.get_long_url(), tiny=True)
 
     params = {
-        "title": info.get("title") if info else "Unknown",
-        "description": meta.get("description") if meta else "None",
-        "contentlength": info.get("length", "???") if info else "???",
-        "link_type": LINK_TYPES[surl.get_link_type()],
+        "title": surl.get_title(),
+        "description": surl.get_description(),
+        "contentlength": surl.get_content_length() or "???",
+        "link_type": surl.get_link_type_text(),
         "mime_type": surl.get_mime_type(),
         "short_url": surl.get_short_url(),
         "long_url": surl.get_long_url(),
@@ -143,40 +131,28 @@ def stats(shortcode):
         "referrers": {},  # {ref->count}
         "locations": {},  # {IP->count}
         "hits": [],
-        "social": social,
+        "social": surl.get_social(),
         "thumb": thumb,
     }
 
     # collect the stats
     itr = sdb.list_hits(surl.get_short_code())
     for hit in itr:
+        classifier = Classifier(sdb, surl, hit)
         # Referrers
         ref = hit["referrer"]
         if ref not in params["referrers"]:
             params["referrers"][ref] = 0
         params["referrers"][ref] += 1
 
-        hit["bot"] = _isbot(hit)
-
-        # Location (IP)
-        ip = hit["remote_addr"]
-        if ip not in params["locations"]:
-            cc = geo.country_code_by_addr(ip)
-            if not cc:
-                cc = "??"
-            params["locations"][ip] = (cc, 0)
-        old = params["locations"][ip]
-        params["locations"][ip] = (old[0], old[1] + 1)
+        hit["bot"] = classifier.is_bot()
 
         hit["time"] = time.strftime("%Y-%m-%d %H:%M:%S",
                                     time.localtime(hit["time"]))
         hit["reltime"] = "2h"
 
-        cc = geo.country_code_by_addr(hit["remote_addr"])
-        hit["cc"] = cc if cc else "??"
-
-        area = gic.record_by_addr(ip)
-        hit["area"] = area
+        hit["cc"] = classifier.get_country_code('??')
+        hit["area"] = classifier.get_region('??')
 
         params["hits"] += [hit]
 
