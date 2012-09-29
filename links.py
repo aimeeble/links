@@ -16,6 +16,7 @@ from linklib.db import ShortDBMongo
 from linklib.db import ShortInvalidException
 from linklib.url import ShortURL
 from linklib.util import UploadedFile
+from util import Forwarder
 
 
 BASE_URL = "http://localhost:5000/"
@@ -28,16 +29,6 @@ app.register_blueprint(linkapi.v1, url_prefix='/api/v1')
 app.register_blueprint(linkapi.twitpic, url_prefix='/api/twitpic')
 
 
-def args2qs(args):
-    if not args:
-        return None
-    r = ''
-    for key, vals in args.iterlists():
-        for val in vals:
-            r += '&%s=%s' % (urllib.quote_plus(key), urllib.quote_plus(val))
-    return '?' + r[1:]
-
-
 @app.route("/")
 def main():
     return ""
@@ -48,46 +39,6 @@ def forward(shortcode):
     return forward_full(shortcode, None)
 
 
-def _thumbify(url, tiny=False):
-    '''Given a URL, modifies the file portion to be thumb.jpg
-
-    '''
-    parts = os.path.split(url)
-
-    original_path = parts[0]
-    original_filename = parts[1]
-
-    extension = os.path.splitext(original_filename)[1]
-    if tiny:
-        thumb_path = os.path.join(original_path, 'tiny%s' % extension)
-    else:
-        thumb_path = os.path.join(original_path, 'thumb%s' % extension)
-
-    # only return a relative URL to thumbnail if one actually exists :-)
-    if os.path.exists(thumb_path):
-        return thumb_path
-    return url
-
-
-def _friendly_to_seconds(t):
-    '''Converts a friendly "5m30s" style time into just an integer number of
-    seconds.
-
-    '''
-    mins = 0
-    secs = 0
-
-    m = t.find('m')
-    if m != -1:
-        mins = int(t[:m])
-
-    s = t.find('s')
-    if s != -1:
-        secs = int(t[m+1:s])
-
-    return mins * 60 + secs
-
-
 @app.route("/<shortcode>/<path:path>", methods=["GET"])
 def forward_full(shortcode, path):
     # Look up code
@@ -96,94 +47,8 @@ def forward_full(shortcode, path):
     except ShortInvalidException, e:
         return flask.make_response("invalid short code", 404)
 
-    # Update stats
-    remote = flask.request.remote_addr
-    referrer = "direct"
-    if "referer" in flask.request.headers:
-        referrer = flask.request.headers["referer"]
-    hit_data = {
-        "remote_addr": flask.request.remote_addr,
-        "referrer": referrer,
-        "time": time.time(),
-        "agent": flask.request.headers.get("user-agent"),
-        "method": flask.request.method,
-        "qs": args2qs(flask.request.args),
-        "path": path,
-    }
-    hit_id = sdb.record_hit(surl.get_short_code(), hit_data)
-    hit_code = str(hit_id)
-
-    # Figure out what sort of display template to use...
-    template = None
-    special = None
-    if surl.is_img():
-        template = 'IMG'
-        if surl.get_mime_type().find('image') == -1:
-            special = 'BIN'
-    elif surl.is_redir():
-        # youtube
-        url = surl.get_long_url()
-        query = urllib.splitquery(url)
-        if url.find('www.youtube.com') > 0:
-            surl.link_type = ShortURL.IMG
-            query = urllib.splitquery(os.path.split(url)[1])[1]
-
-            url = urllib.splitvalue(query)[1]
-
-            url, t = urllib.splittag(url)
-            if t:
-                t = urllib.splitvalue(t)[1]
-                t = _friendly_to_seconds(t)
-            else:
-                t = 0
-
-            if t > 0:
-                url = '%s?start=%s' % (url, t)
-
-            surl.long_url = url
-            template = 'IMG'
-            special = 'YT'
-        # find other stuff here....
-        else:
-            template = 'REDIR'
-    elif surl.is_text():
-        template = 'TXT'
-
-    # Redirect
-    if template == 'REDIR':
-        if path:
-            dest_url = "%s/%s" % (surl.get_long_url(), path)
-        else:
-            dest_url = surl.get_long_url()
-        return flask.make_response("Moved", 302, {"Location": dest_url})
-    elif template == 'IMG':
-        length = surl.get_info().get("length")
-        if not length:
-            length = 0
-        data = {
-            "img_filename": surl.get_info().get("title"),
-            "img_thumb_url": urllib.quote(_thumbify(surl.get_long_url())),
-            "img_url": surl.get_long_url(),
-            "hit_code": hit_code,
-            "img_size": length,
-            "special": special,
-        }
-        return flask.render_template("image.html", data=data)
-    elif template == 'TXT':
-        lang = ""
-        if "lang" in surl.get_info() and surl.get_info()["lang"]:
-            lang = " data-language=\"%s\"" % surl.get_info()["lang"]
-        if "lang" in flask.request.args:
-            lang = " data-language=\"%s\"" % flask.request.args["lang"]
-        with open(surl.get_long_url(), "r") as f:
-            data = {
-                "text": f.read(),
-                "lang": lang,
-                "hit_code": hit_code,
-            }
-            return flask.render_template("text.html", data=data)
-    else:
-        return flask.make_response("invalid type", 500)
+    fwd = Forwarder(sdb, surl, path)
+    return fwd.handle_request()
 
 
 def _isbot(hit):
@@ -264,7 +129,7 @@ def stats(shortcode):
     thumb = None
     if surl.get_link_type() == ShortURL.IMG and \
             surl.get_mime_type().find('image') != -1:
-        thumb = _thumbify(surl.get_long_url(), tiny=True)
+        thumb = Forwarder._thumbify(surl.get_long_url(), tiny=True)
 
     params = {
         "title": info.get("title") if info else "Unknown",
