@@ -116,7 +116,7 @@ class Forwarder(object):
             "file_size": 0,
             "media_type": None,
         }
-        return flask.render_template("image.html", data=data)
+        return flask.render_template("media.html", data=data)
 
     def _display_binary(self):
         length = self.surl.get_info().get("length")
@@ -129,7 +129,7 @@ class Forwarder(object):
             "file_size": length,
             "media_type": 'BINARY',
         }
-        return flask.render_template("image.html", data=data)
+        return flask.render_template("media.html", data=data)
 
     def _display_hosted_image(self):
         raise NotImplemented()
@@ -147,7 +147,7 @@ class Forwarder(object):
             "hit_code": self.hit_code,
             "media_type": 'YOUTUBE',
         }
-        return flask.render_template("image.html", data=data)
+        return flask.render_template("media.html", data=data)
 
     def _display_text(self):
         lang = ""
