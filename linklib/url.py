@@ -21,6 +21,13 @@ class ShortURL(object):
     def get_link_type(self):
         return self.link_type
 
+    def get_link_type_text(self):
+        LINK_TYPES = {}
+        LINK_TYPES[1] = "REDIR"
+        LINK_TYPES[2] = "IMG"
+        LINK_TYPES[3] = "TEXT"
+        return LINK_TYPES[self.link_type]
+
     def is_redir(self):
         return self.link_type == ShortURL.REDIR
 
@@ -47,6 +54,28 @@ class ShortURL(object):
 
     def get_social(self):
         return self.social
+
+    def get_title(self):
+        title = self.info.get('title')
+        if not title:
+            title = 'Unknown'
+        return title
+
+    def get_description(self):
+        meta = self.info.get('meta')
+        if not meta:
+            return 'None'
+        desc = meta.get('description')
+        if not desc:
+            return 'None'
+        return desc
+
+    def get_content_length(self):
+        length = self.info.get('length', '0')
+        return int(length)
+
+    def get_social(self):
+        return {}
 
     def __str__(self):
         return "(URL %s = %s)" % (self.short_code, self.long_url)
