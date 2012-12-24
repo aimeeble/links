@@ -53,10 +53,10 @@ def shrink():
         sdb.save(surl)
     else:
         # Trying to shorten a new URL.
-        surl = sdb.new(full_url)
-        surl.link_type = ShortURL.REDIR
+        surl = sdb.new(full_url, ShortURL.REDIR)
         surl.mime_type = surl.info["mimetype"] if surl.info else None
         sdb.save(surl)
+        print "Shortened %s to %s" % (surl.get_long_url(), surl.get_short_url())
 
     return {
         "status": "OK",
@@ -78,8 +78,7 @@ def post():
 
         full_url = uploaded_file.get_filename()
 
-        surl = sdb.new(full_url)
-        surl.link_type = ShortURL.IMG
+        surl = sdb.new(full_url, ShortURL.IMG)
         surl.mime_type = uploaded_file.get_mimetype()
         if not surl.info:
             surl.info = {}
@@ -98,8 +97,7 @@ def post():
 
             full_url = uploaded_file.get_filename()
 
-        surl = sdb.new(full_url)
-        surl.link_type = ShortURL.TEXT
+        surl = sdb.new(full_url, ShortURL.TEXT)
         if "m" in flask.request.form:
             surl.mime_type = flask.request.form["m"]
         else:

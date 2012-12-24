@@ -36,9 +36,14 @@ function load_recent_urls(divid) {
    });
 }
 
-function progress_done(text) {
+function progress_done(text, success) {
    $('#progress_bar').parent().removeClass('progress-striped active');
    $('#progress_bar').text(text);
+   if (success) {
+       $('form').each(function () {
+           this.reset();
+       });
+   }
 }
 
 function ajax_shorten(longurl) {
@@ -49,7 +54,7 @@ function ajax_shorten(longurl) {
       "data": {"url": longurl},
 
       "success": function(data) {
-         progress_done(data.short_url);
+         progress_done(data.short_url, true);
          load_recent_urls("#recent");
       },
       "failure": function() {
@@ -95,7 +100,7 @@ function ajax_upload() {
          $('#progress_bar').parent().addClass('progress-striped active');
       },
       "success": function(data) {
-         progress_done(data.short_url);
+         progress_done(data.short_url, true);
          load_recent_urls("#recent");
       },
       "failure": function() {

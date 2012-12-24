@@ -5,6 +5,7 @@ from bson.objectid import ObjectId
 import pymongo
 
 from url import ShortURL
+from linklib.util import DownloadedFile
 from linklib.util import get_page_info
 
 
@@ -51,7 +52,7 @@ class ShortDBBase(object):
         """
         pass
 
-    def new(self, long_url):
+    def new(self, long_url, link_type):
         """Creates and returns a new ShortURL representing the url.
         """
         short_code = self._hash_url(long_url)
@@ -66,6 +67,25 @@ class ShortDBBase(object):
             info = {}
 
         surl = ShortURL(short_code, short_url, long_url, info)
+        surl.link_type = link_type
+
+        mime = info["mimetype"]
+        if not long_url.startswith("static/") and mime and mime.startswith("image/"):
+            print "DOWNLOADING %s" % surl.get_long_url()
+            dl_file = DownloadedFile(long_url)
+            dl_file.download()
+            dl_file.save()
+
+            # Override some info...
+            print "downloaded to: %s" % dl_file.get_filename()
+            surl.long_url = dl_file.get_filename()
+            surl.link_type = ShortURL.IMG
+            surl.mime_type = dl_file.get_mimetype()
+
+            # Rehash since we just changed the long_url
+            surl.short_code = self._hash_url(surl.long_url)
+            surl.short_url = self.prefix + surl.short_code
+            print "new short_url %s" % surl.get_short_url()
 
         self.save(surl)
         return surl

@@ -11,6 +11,7 @@ def jsonify(f):
             return flask.Response("%s\n" % json.dumps(res),
                                   content_type="application/json")
         except Exception, e:
+            raise
             res = {
                 "err": "%s" % (str(e)),
             }
