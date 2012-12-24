@@ -84,7 +84,7 @@ class ShortDBBase(object):
 
             # Rehash since we just changed the long_url
             surl.short_code = self._hash_url(surl.long_url)
-            surl.short_url = self.prefix + short_code
+            surl.short_url = self.prefix + surl.short_code
             print "new short_url %s" % surl.get_short_url()
 
         self.save(surl)
