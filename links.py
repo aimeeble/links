@@ -195,10 +195,9 @@ def new_paste():
 
         fullpath = uploaded_file.get_filename()
 
-    surl = sdb.new(fullpath)
+    surl = sdb.new(fullpath, ShortURL.TEXT)
     surl.get_info()["title"] = title
     surl.get_info()["lang"] = lang
-    surl.link_type = ShortURL.TEXT
     surl.mime_type = "text/plain"
     sdb.save(surl)
 

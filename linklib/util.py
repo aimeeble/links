@@ -1,3 +1,4 @@
+import cStringIO
 import bs4
 import errno
 import hashlib
@@ -5,6 +6,7 @@ import os
 from PIL import Image
 import urllib2
 import uuid
+import tempfile
 
 
 class UploadedFile(object):
@@ -144,6 +146,35 @@ class UploadedFile(object):
 
         # Thumbnail!
         self._create_thumbnail()
+
+
+class DownloadedFile(object):
+    def __init__(self, url):
+        self.url = url
+        self.req = urllib2.urlopen(url)
+
+        self.uploaded_file = None
+        self.filename = None
+        self.mime_type = None
+
+    def download(self):
+        data = self.req.read()
+
+        self.mime_type = self.req.headers.gettype()
+        self.filename = os.path.basename(self.url)
+
+        temp_file = cStringIO.StringIO(data)
+        self.uploaded_file = UploadedFile(None, stream=temp_file,
+            filename=self.filename, mimetype=self.mime_type)
+
+    def save(self):
+        self.uploaded_file.save()
+
+    def get_filename(self):
+        return self.uploaded_file.get_filename()
+
+    def get_mimetype(self):
+        return self.mime_type
 
 
 class HeadRequest(urllib2.Request):
