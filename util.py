@@ -144,6 +144,7 @@ class Forwarder(object):
         data = {
             "img_filename": self.surl.get_info().get("title"),
             "img_url": self.url,
+            "original_url": self.surl.get_long_url(),
             "hit_code": self.hit_code,
             "media_type": 'YOUTUBE',
         }

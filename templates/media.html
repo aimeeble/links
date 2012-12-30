@@ -16,6 +16,8 @@
          <div id="img_container">
          {% if data.media_type == 'YOUTUBE' %}
             <iframe width="640" height="480" src="{{ data.img_url }}" frameborder="0" allowfullscreen></iframe>
+            <br>
+            <a href="{{ data.original_url }}">View on YouTube</a>
          {% elif data.media_type == 'BINARY' %}
          <a href="{{ data.img_url }}">
             <img src="{{ url_for('static', filename='binary.png') }}"/>
